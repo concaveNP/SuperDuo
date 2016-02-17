@@ -9,10 +9,12 @@
 
 
     <application
+
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation"
@@ -22,6 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:label="@string/title_activity_settings"
             android:name=".SettingsActivity"
@@ -31,16 +34,20 @@
                 android:value=".MainActivity" />
         </activity>
 
-
-
         <provider
             android:name=".data.BookProvider"
             android:authorities="it.jaschke.alexandria"
             android:exported="false" />
+
         <service
             android:name=".services.BookService"
             android:exported="false" >
         </service>
+
+        <meta-data
+            android:name="com.google.android.gms.vision.DEPENDENCIES"
+            android:value="barcode" />
+
     </application>
 
 </manifest>
