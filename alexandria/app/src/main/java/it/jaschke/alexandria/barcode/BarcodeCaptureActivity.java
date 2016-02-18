@@ -52,6 +52,8 @@ import it.jaschke.alexandria.barcode.ui.camera.CameraSource;
 import it.jaschke.alexandria.barcode.ui.camera.CameraSourcePreview;
 import it.jaschke.alexandria.barcode.ui.camera.GraphicOverlay;
 
+import android.support.design.widget.Snackbar;
+
 /**
  * Activity for the multi-tracker app.  This app detects barcodes and displays the value with the
  * rear facing camera. During detection overlay graphics are drawn to indicate the position,

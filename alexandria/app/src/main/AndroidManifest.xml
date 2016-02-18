@@ -34,6 +34,22 @@
                 android:value=".MainActivity" />
         </activity>
 
+
+
+        <activity
+            android:label="Dave find a new name"
+            android:name=".barcode.BarcodeCaptureActivity"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+
+
+
+
+
         <provider
             android:name=".data.BookProvider"
             android:authorities="it.jaschke.alexandria"

@@ -102,7 +102,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 //                toast.show();
 
                 // launch barcode activity.
-                Intent intent = new Intent(this, BarcodeCaptureActivity.class);
+                Intent intent = new Intent(getContext(), BarcodeCaptureActivity.class);
                 //intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked());
                 //intent.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked());
                 intent.putExtra(BarcodeCaptureActivity.AutoFocus, true);
