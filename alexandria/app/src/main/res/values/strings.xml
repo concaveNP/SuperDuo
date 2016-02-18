@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Alexandria</string>
+    <string name="barcode_activity_name">Alexandria Barcode Reader</string>
 
     <!-- Menu Items -->
     <string name="books">List of Books</string>

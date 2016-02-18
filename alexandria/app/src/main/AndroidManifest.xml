@@ -37,7 +37,7 @@
 
 
         <activity
-            android:label="Dave find a new name"
+            android:label="@string/barcode_activity_name"
             android:name=".barcode.BarcodeCaptureActivity"
             android:parentActivityName=".MainActivity" >
             <meta-data
