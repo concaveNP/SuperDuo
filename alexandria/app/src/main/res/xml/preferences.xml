@@ -10,7 +10,18 @@
         android:key="pref_startFragment"
         android:title="@string/pref_startScreen"
         android:entries="@array/pref_start_options"
-        android:entryValues="@array/pref_start_values"
-        />
+        android:entryValues="@array/pref_start_values" />
+
+    <CheckBoxPreference
+        android:key="@string/auto_flash_setting"
+        android:defaultValue="false"
+        android:title="@string/auto_flash_title">
+    </CheckBoxPreference>
+
+    <CheckBoxPreference
+        android:key="@string/auto_focus_setting"
+        android:defaultValue="true"
+        android:title="@string/auto_focus_title">
+    </CheckBoxPreference>
 
 </PreferenceScreen>
