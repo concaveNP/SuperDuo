@@ -27,6 +27,9 @@ public class BookProvider extends ContentProvider {
     private static final int BOOK_FULL = 500;
     private static final int BOOK_FULLDETAIL = 501;
 
+    private static final int EAN_ID = 600;
+    private static final int EAN = 601;
+
     private static final UriMatcher uriMatcher = buildUriMatcher();
 
     private DbHelper dbHelper;
@@ -41,7 +44,6 @@ public class BookProvider extends ContentProvider {
                 " LEFT OUTER JOIN " +  AlexandriaContract.CategoryEntry.TABLE_NAME + " USING (" +AlexandriaContract.BookEntry._ID + ")");
     }
 
-
     private static UriMatcher buildUriMatcher() {
 
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -50,10 +52,12 @@ public class BookProvider extends ContentProvider {
         matcher.addURI(authority, AlexandriaContract.PATH_BOOKS+"/#", BOOK_ID);
         matcher.addURI(authority, AlexandriaContract.PATH_AUTHORS+"/#", AUTHOR_ID);
         matcher.addURI(authority, AlexandriaContract.PATH_CATEGORIES+"/#", CATEGORY_ID);
+        matcher.addURI(authority, AlexandriaContract.PATH_EANS +"/#", EAN_ID);
 
         matcher.addURI(authority, AlexandriaContract.PATH_BOOKS, BOOK);
         matcher.addURI(authority, AlexandriaContract.PATH_AUTHORS, AUTHOR);
         matcher.addURI(authority, AlexandriaContract.PATH_CATEGORIES, CATEGORY);
+        matcher.addURI(authority, AlexandriaContract.PATH_EANS, EAN);
 
         matcher.addURI(authority, AlexandriaContract.PATH_FULLBOOK +"/#", BOOK_FULLDETAIL);
         matcher.addURI(authority, AlexandriaContract.PATH_FULLBOOK, BOOK_FULL);
@@ -65,7 +69,6 @@ public class BookProvider extends ContentProvider {
     public boolean onCreate() {
         dbHelper = new DbHelper(getContext());
         return true;
-
     }
 
     @Override
@@ -105,6 +108,17 @@ public class BookProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
+            case EAN:
+                retCursor=dbHelper.getReadableDatabase().query(
+                        AlexandriaContract.EanEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
             case BOOK_ID:
                 retCursor=dbHelper.getReadableDatabase().query(
                         AlexandriaContract.BookEntry.TABLE_NAME,
@@ -132,6 +146,17 @@ public class BookProvider extends ContentProvider {
                         AlexandriaContract.CategoryEntry.TABLE_NAME,
                         projection,
                         AlexandriaContract.CategoryEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            case EAN_ID:
+                retCursor=dbHelper.getReadableDatabase().query(
+                        AlexandriaContract.EanEntry.TABLE_NAME,
+                        projection,
+                        AlexandriaContract.EanEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
                         selectionArgs,
                         null,
                         null,
@@ -194,12 +219,16 @@ public class BookProvider extends ContentProvider {
                 return AlexandriaContract.AuthorEntry.CONTENT_ITEM_TYPE;
             case CATEGORY_ID:
                 return AlexandriaContract.CategoryEntry.CONTENT_ITEM_TYPE;
+            case EAN_ID:
+                return AlexandriaContract.EanEntry.CONTENT_ITEM_TYPE;
             case BOOK:
                 return AlexandriaContract.BookEntry.CONTENT_TYPE;
             case AUTHOR:
                 return AlexandriaContract.AuthorEntry.CONTENT_TYPE;
             case CATEGORY:
                 return AlexandriaContract.CategoryEntry.CONTENT_TYPE;
+            case EAN:
+                return AlexandriaContract.EanEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -237,6 +266,14 @@ public class BookProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
+            case EAN: {
+                long _id = db.insert(AlexandriaContract.EanEntry.TABLE_NAME, null, values);
+                if (_id > 0)
+                    returnUri = AlexandriaContract.EanEntry.buildEanUri(values.getAsLong("_id"));
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -260,6 +297,10 @@ public class BookProvider extends ContentProvider {
             case CATEGORY:
                 rowsDeleted = db.delete(
                         AlexandriaContract.CategoryEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case EAN:
+                rowsDeleted = db.delete(
+                        AlexandriaContract.EanEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case BOOK_ID:
                 rowsDeleted = db.delete(
@@ -295,6 +336,10 @@ public class BookProvider extends ContentProvider {
                 rowsUpdated = db.update(AlexandriaContract.CategoryEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
+            case EAN:
+                rowsUpdated = db.update(AlexandriaContract.EanEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -304,4 +349,5 @@ public class BookProvider extends ContentProvider {
         }
         return rowsUpdated;
     }
+
 }
