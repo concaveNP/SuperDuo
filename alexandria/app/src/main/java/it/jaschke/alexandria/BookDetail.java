@@ -1,6 +1,8 @@
 package it.jaschke.alexandria;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import it.jaschke.alexandria.data.AlexandriaContract;
+import it.jaschke.alexandria.receivers.NetworkReceiver;
 import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.services.DownloadImage;
 
@@ -132,10 +135,25 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
+        PackageManager pm = getContext().getPackageManager();
+        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+    }
+
+    @Override
     public void onPause() {
-        super.onDestroyView();
+        super.onPause();
+
         if(MainActivity.IS_TABLET && rootView.findViewById(R.id.right_container)==null){
             getActivity().getSupportFragmentManager().popBackStack();
         }
+
+        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
+        PackageManager pm = getContext().getPackageManager();
+        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP );
     }
+
 }

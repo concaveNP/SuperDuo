@@ -18,6 +18,7 @@ public class AlexandriaContract{
     public static final String PATH_BOOKS = "books";
     public static final String PATH_AUTHORS = "authors";
     public static final String PATH_CATEGORIES = "categories";
+    public static final String PATH_EANS = "eans";
 
     public static final String PATH_FULLBOOK = "fullbook";
 
@@ -83,6 +84,23 @@ public class AlexandriaContract{
         public static Uri buildCategoryUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
-
     }
+
+    public static final class EanEntry implements BaseColumns {
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_EANS).build();
+
+        public static final String CONTENT_TYPE =
+                "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_EANS;
+        public static final String CONTENT_ITEM_TYPE =
+                "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_EANS;
+
+        public static final String TABLE_NAME = "eans";
+
+        public static final String CODE = "code";
+
+        public static Uri buildEanUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
 }

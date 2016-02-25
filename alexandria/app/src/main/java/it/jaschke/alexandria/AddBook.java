@@ -1,8 +1,10 @@
 package it.jaschke.alexandria;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -22,6 +24,7 @@ import android.widget.TextView;
 
 import it.jaschke.alexandria.barcode.BarcodeCaptureActivity;
 import it.jaschke.alexandria.data.AlexandriaContract;
+import it.jaschke.alexandria.receivers.NetworkReceiver;
 import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.services.DownloadImage;
 
@@ -100,6 +103,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         rootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // TODO: 2/23/16 - put in words explaining the missing functionality now being added
+
 
                 // Get the preference settings for auto focus and auto flash
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -236,6 +242,24 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         rootView.findViewById(R.id.bookCover).setVisibility(View.INVISIBLE);
         rootView.findViewById(R.id.save_button).setVisibility(View.INVISIBLE);
         rootView.findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
+        PackageManager pm = getContext().getPackageManager();
+        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
+        PackageManager pm = getContext().getPackageManager();
+        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP );
     }
 
     @Override
