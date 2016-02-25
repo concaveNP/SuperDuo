@@ -3,6 +3,7 @@ package it.jaschke.alexandria.services;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import it.jaschke.alexandria.MainActivity;
 
@@ -19,6 +20,11 @@ import it.jaschke.alexandria.MainActivity;
  */
 public class NetworkConnectivityStatus {
 
+    /**
+     * The logging tag string to be associated with log data for this class
+     */
+    private static final String TAG = NetworkConnectivityStatus.class.getSimpleName();
+
     private static NetworkConnectivityStatus sInstance = null;
 
     private boolean mConnected;
@@ -31,11 +37,20 @@ public class NetworkConnectivityStatus {
      */
     protected NetworkConnectivityStatus() {
 
-        ConnectivityManager cm = (ConnectivityManager) MainActivity.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        // TODO: 2/24/16 - there is an error here, dunno why, but it looks like the context is null
 
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        Context context = MainActivity.getAppContext();
 
-        setConnected(activeNetwork != null && activeNetwork.isConnectedOrConnecting());
+        if (context != null) {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+            setConnected(activeNetwork != null && activeNetwork.isConnectedOrConnecting());
+        }
+        else {
+            Log.e(TAG, "The context was unavailable for use");
+        }
     }
 
     public static NetworkConnectivityStatus getInstance() {
