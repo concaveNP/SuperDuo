@@ -1,6 +1,8 @@
 package it.jaschke.alexandria;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,7 @@ import android.widget.ListView;
 import it.jaschke.alexandria.api.BookListAdapter;
 import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.data.AlexandriaContract;
+import it.jaschke.alexandria.receivers.NetworkReceiver;
 
 
 public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -40,6 +43,8 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        // TODO: 2/23/16 - this is a big design bug, the class is built with the intent of using a
+        // LoadManager, but never uses it, this work is being on the GUI thread I believe and will never update
         Cursor cursor = getActivity().getContentResolver().query(
                 AlexandriaContract.BookEntry.CONTENT_URI,
                 null, // leaving "columns" null just returns all the columns.
@@ -124,9 +129,28 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
         bookListAdapter.swapCursor(null);
     }
 
+    // TODO: 2/23/16 - fix bug with using older interface call
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         activity.setTitle(R.string.books);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
+        PackageManager pm = getContext().getPackageManager();
+        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
+        PackageManager pm = getContext().getPackageManager();
+        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP );
     }
 }

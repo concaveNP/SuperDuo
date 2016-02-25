@@ -37,9 +37,18 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     public static final String MESSAGE_EVENT = "MESSAGE_EVENT";
     public static final String MESSAGE_KEY = "MESSAGE_EXTRA";
 
+    /**
+     * Put in for access by non android based classes.
+     */
+    private static Context sContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Save off the context for other POJO use
+        MainActivity.sContext = getApplicationContext();
+
         IS_TABLET = isTablet();
         if(IS_TABLET){
             setContentView(R.layout.activity_main_tablet);
@@ -58,6 +67,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         // Set up the drawer.
         navigationDrawerFragment.setUp(R.id.navigation_drawer,
                     (DrawerLayout) findViewById(R.id.drawer_layout));
+    }
+
+    public static Context getAppContext() {
+        return MainActivity.sContext;
     }
 
     @Override
