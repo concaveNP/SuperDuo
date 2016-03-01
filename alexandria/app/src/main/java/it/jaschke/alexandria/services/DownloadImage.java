@@ -18,16 +18,21 @@ public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
         this.bmImage = bmImage;
     }
 
+    // Check to see if there is network connectivity
     protected Bitmap doInBackground(String... urls) {
         String urlDisplay = urls[0];
         Bitmap bookCover = null;
-        try {
-            InputStream in = new java.net.URL(urlDisplay).openStream();
-            bookCover = BitmapFactory.decodeStream(in);
-        } catch (Exception e) {
-            Log.e("Error", e.getMessage());
-            e.printStackTrace();
+
+        if (NetworkConnectivityStatus.getInstance().isConnected()) {
+            try {
+                InputStream in = new java.net.URL(urlDisplay).openStream();
+                bookCover = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
         }
+
         return bookCover;
     }
 

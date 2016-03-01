@@ -34,11 +34,18 @@ import com.google.android.gms.vision.barcode.Barcode;
 
 
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
-    private EditText ean;
-    private final int LOADER_ID = 1;
+
+    private EditText eanEditText;
+
+    private final int FOUND_LOADER_ID = 1;
+    private final int NOT_FOUND_LOADER_ID = 2;
+
     private View rootView;
+
     private final String EAN_CONTENT="eanContent";
+
     private static final String SCAN_FORMAT = "scanFormat";
     private static final String SCAN_CONTENTS = "scanContents";
 
@@ -47,14 +54,19 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     private static final int RC_BARCODE_CAPTURE = 9001;
 
+    /**
+     * Default constructor
+     */
     public AddBook(){
+        // Do nothing
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(ean!=null) {
-            outState.putString(EAN_CONTENT, ean.getText().toString());
+
+        if (eanEditText != null) {
+            outState.putString(EAN_CONTENT, eanEditText.getText().toString());
         }
     }
 
@@ -62,9 +74,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
-        ean = (EditText) rootView.findViewById(R.id.ean);
+        eanEditText = (EditText) rootView.findViewById(R.id.ean);
 
-        ean.addTextChangedListener(new TextWatcher() {
+        eanEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 //no need
@@ -95,7 +107,18 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 bookIntent.putExtra(BookService.EAN, ean);
                 bookIntent.setAction(BookService.FETCH_BOOK);
                 getActivity().startService(bookIntent);
-                AddBook.this.restartLoader();
+                AddBook.this.restartLoaders();
+
+
+
+
+
+//               need to have another loader that is monitoring the EAN table
+
+
+
+
+
 
             }
         });
@@ -124,7 +147,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         rootView.findViewById(R.id.save_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ean.setText("");
+                eanEditText.setText("");
             }
         });
 
@@ -132,16 +155,16 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             @Override
             public void onClick(View view) {
                 Intent bookIntent = new Intent(getActivity(), BookService.class);
-                bookIntent.putExtra(BookService.EAN, ean.getText().toString());
+                bookIntent.putExtra(BookService.EAN, eanEditText.getText().toString());
                 bookIntent.setAction(BookService.DELETE_BOOK);
                 getActivity().startService(bookIntent);
-                ean.setText("");
+                eanEditText.setText("");
             }
         });
 
         if(savedInstanceState!=null){
-            ean.setText(savedInstanceState.getString(EAN_CONTENT));
-            ean.setHint("");
+            eanEditText.setText(savedInstanceState.getString(EAN_CONTENT));
+            eanEditText.setHint("");
         }
 
         return rootView;
@@ -158,7 +181,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     //statusMessage.setText(R.string.barcode_success);
 
                     //barcodeValue.setText(barcode.displayValue);
-                    ean.setText(barcode.displayValue);
+                    eanEditText.setText(barcode.displayValue);
 
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                 } else {
@@ -177,61 +200,103 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         }
     }
 
-    private void restartLoader(){
-        getLoaderManager().restartLoader(LOADER_ID, null, this);
+    private void restartLoaders(){
+        getLoaderManager().restartLoader(FOUND_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(NOT_FOUND_LOADER_ID, null, this);
     }
 
     @Override
     public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if(ean.getText().length()==0){
+
+        // Check for a valid EAN number to work with
+        if (eanEditText.getText().length() == 0) {
             return null;
         }
-        String eanStr= ean.getText().toString();
-        if(eanStr.length()==10 && !eanStr.startsWith("978")){
-            eanStr="978"+eanStr;
+
+        android.support.v4.content.Loader<Cursor> result = null;
+
+        // There are different loaders
+        switch (id) {
+            case FOUND_LOADER_ID: {
+                // TODO: 2/25/16 - not sure, but i thing the if below is a bug, http://www.makebarcode.com/specs/bookland.html
+
+                String eanStr= eanEditText.getText().toString();
+                if(eanStr.length()==10 && !eanStr.startsWith("978")){
+                    eanStr="978"+eanStr;
+                }
+
+                result = new CursorLoader(
+                        getActivity(),
+                        AlexandriaContract.BookEntry.buildFullBookUri(Long.parseLong(eanStr)),
+                        null,
+                        null,
+                        null,
+                        null
+                );
+
+                break;
+            }
+            case NOT_FOUND_LOADER_ID: {
+                break;
+            }
+            default: {
+                break;
+            }
         }
-        return new CursorLoader(
-                getActivity(),
-                AlexandriaContract.BookEntry.buildFullBookUri(Long.parseLong(eanStr)),
-                null,
-                null,
-                null,
-                null
-        );
+
+        return result;
     }
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
-        if (!data.moveToFirst()) {
-            return;
+
+        // There are different loaders
+        switch (loader.getId()) {
+            case FOUND_LOADER_ID: {
+
+                if (!data.moveToFirst()) {
+                    return;
+                }
+
+                String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
+                ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
+
+                String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
+                ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
+
+                String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
+                String[] authorsArr = authors.split(",");
+                ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
+                ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
+                String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
+                if(Patterns.WEB_URL.matcher(imgUrl).matches()){
+                    new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
+                    rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
+                }
+
+                String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
+                ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
+
+                rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
+
+                break;
+            }
+            case NOT_FOUND_LOADER_ID: {
+
+
+                break;
+            }
+            default: {
+                break;
+            }
         }
 
-        String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-        ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
-
-        String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
-        ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
-
-        String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        String[] authorsArr = authors.split(",");
-        ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-        ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
-        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
-            rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
-        }
-
-        String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-        ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
-
-        rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
-        rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-
+        // Do nothing
     }
 
     private void clearFields(){
@@ -262,6 +327,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP );
     }
 
+    // TODO: 2/28/16 - fix the deprecated interface
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
