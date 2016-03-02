@@ -298,9 +298,11 @@ public class BookProvider extends ContentProvider {
                 rowsDeleted = db.delete(
                         AlexandriaContract.CategoryEntry.TABLE_NAME, selection, selectionArgs);
                 break;
-            case EAN:
+            case EAN_ID:
                 rowsDeleted = db.delete(
-                        AlexandriaContract.EanEntry.TABLE_NAME, selection, selectionArgs);
+                        AlexandriaContract.EanEntry.TABLE_NAME,
+                        AlexandriaContract.EanEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
+                        selectionArgs);
                 break;
             case BOOK_ID:
                 rowsDeleted = db.delete(

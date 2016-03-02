@@ -39,8 +39,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     private EditText eanEditText;
 
-    private final int FOUND_LOADER_ID = 1;
-    private final int NOT_FOUND_LOADER_ID = 2;
+    private final int BOOK_LOADER_ID = 1;
 
     private View rootView;
 
@@ -108,18 +107,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 bookIntent.setAction(BookService.FETCH_BOOK);
                 getActivity().startService(bookIntent);
                 AddBook.this.restartLoaders();
-
-
-
-
-
-//               need to have another loader that is monitoring the EAN table
-
-
-
-
-
-
             }
         });
 
@@ -127,19 +114,18 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             @Override
             public void onClick(View v) {
 
-                // TODO: 2/23/16 - put in words explaining the missing functionality now being added
+            // TODO: 2/23/16 - put in words explaining the missing functionality now being added
 
+            // Get the preference settings for auto focus and auto flash
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            Boolean autoFocus = prefs.getBoolean(getResources().getString(R.string.auto_focus_setting), true);
+            Boolean autoFlash = prefs.getBoolean(getResources().getString(R.string.auto_flash_setting), false);
 
-                // Get the preference settings for auto focus and auto flash
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-                Boolean autoFocus = prefs.getBoolean(getResources().getString(R.string.auto_focus_setting), true);
-                Boolean autoFlash = prefs.getBoolean(getResources().getString(R.string.auto_flash_setting), false);
-
-                // Launch barcode activity
-                Intent intent = new Intent(getContext(), BarcodeCaptureActivity.class);
-                intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFlash);
-                intent.putExtra(BarcodeCaptureActivity.UseFlash, autoFocus);
-                startActivityForResult(intent, RC_BARCODE_CAPTURE);
+            // Launch barcode activity
+            Intent intent = new Intent(getContext(), BarcodeCaptureActivity.class);
+            intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFlash);
+            intent.putExtra(BarcodeCaptureActivity.UseFlash, autoFocus);
+            startActivityForResult(intent, RC_BARCODE_CAPTURE);
 
             }
         });
@@ -201,8 +187,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
     private void restartLoaders(){
-        getLoaderManager().restartLoader(FOUND_LOADER_ID, null, this);
-        getLoaderManager().restartLoader(NOT_FOUND_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
     }
 
     @Override
@@ -215,34 +200,20 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         android.support.v4.content.Loader<Cursor> result = null;
 
-        // There are different loaders
-        switch (id) {
-            case FOUND_LOADER_ID: {
-                // TODO: 2/25/16 - not sure, but i thing the if below is a bug, http://www.makebarcode.com/specs/bookland.html
-
-                String eanStr= eanEditText.getText().toString();
-                if(eanStr.length()==10 && !eanStr.startsWith("978")){
-                    eanStr="978"+eanStr;
-                }
-
-                result = new CursorLoader(
-                        getActivity(),
-                        AlexandriaContract.BookEntry.buildFullBookUri(Long.parseLong(eanStr)),
-                        null,
-                        null,
-                        null,
-                        null
-                );
-
-                break;
-            }
-            case NOT_FOUND_LOADER_ID: {
-                break;
-            }
-            default: {
-                break;
-            }
+        String eanStr= eanEditText.getText().toString();
+        if(eanStr.length()==10 && !eanStr.startsWith("978")){
+            eanStr="978"+eanStr;
         }
+
+        // TODO: 2/25/16 - not sure, but i thing the if below is a bug, http://www.makebarcode.com/specs/bookland.html
+        result = new CursorLoader(
+                getActivity(),
+                AlexandriaContract.BookEntry.buildFullBookUri(Long.parseLong(eanStr)),
+                null,
+                null,
+                null,
+                null
+        );
 
         return result;
     }
@@ -250,47 +221,31 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
 
-        // There are different loaders
-        switch (loader.getId()) {
-            case FOUND_LOADER_ID: {
-
-                if (!data.moveToFirst()) {
-                    return;
-                }
-
-                String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-                ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
-
-                String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
-                ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
-
-                String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-                String[] authorsArr = authors.split(",");
-                ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-                ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
-                String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-                if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-                    new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
-                    rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
-                }
-
-                String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-                ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
-
-                rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
-                rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
-
-                break;
-            }
-            case NOT_FOUND_LOADER_ID: {
-
-
-                break;
-            }
-            default: {
-                break;
-            }
+        if (!data.moveToFirst()) {
+            return;
         }
+
+        String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
+        ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
+
+        String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
+        ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
+
+        String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
+        String[] authorsArr = authors.split(",");
+        ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
+        ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
+        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
+        if(Patterns.WEB_URL.matcher(imgUrl).matches()){
+            new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
+            rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
+        }
+
+        String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
+        ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
+
+        rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
+        rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
 
     }
 

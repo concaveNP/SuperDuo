@@ -62,16 +62,34 @@ public class BookService extends IntentService {
      * parameters.
      */
     private void deleteBook(String ean) {
-        if(ean!=null) {
+        if (ean != null) {
             getContentResolver().delete(AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)), null, null);
+        }
+    }
+
+    /**
+     * Delete from the EAN DB table the given EAN entry.
+     *
+     * @param ean - The EAN number to remove from the table
+     */
+    private void deleteEanBook(String ean) {
+        if (ean != null) {
+            getContentResolver().delete(AlexandriaContract.EanEntry.buildEanUri(Long.parseLong(ean)), null, null);
         }
     }
 
     /**
      * Handle action fetchBook in the provided background thread with the provided
      * parameters.
+     *
+     * todo - fix param
+     * @return True for successfully retrieving the book's information and adding it to the
+     * DB and false otherwise
      */
     private void fetchBook(String ean) {
+// TODO: 2/29/16 - remove if needed
+//        // Was the book successfully processed?  Default to no until success.
+//        boolean result = false;
 
         // Check for correct length EAN number
         if (ean.length() != 13) {
@@ -80,14 +98,16 @@ public class BookService extends IntentService {
 
         // TODO: 2/27/16 - potentially toast here in order to let the user know that book already exists in DB table X
 
-        // Check to see if it exists in the Book Table
+        // Check to see if it exists in the Book Table already.  If it does then there is nothing to do.
         if (isInBookTable(ean)) {
-           return;
+            return;
         }
 
-        // Check to see if it exists in the EAN Table as a yet unprocessed entry
+        // Check to see if it exists in the EAN Table as a yet unprocessed entry.  If it does then
+        // remove it and try to get info about it from the network again.  If the network is down
+        // again then just re-add it back to the EAN table.
         if (isInEanTable(ean)) {
-            return;
+            deleteEanBook(ean);
         }
 
         // Check to see if there is network connectivity
@@ -103,7 +123,8 @@ public class BookService extends IntentService {
 
             } catch (IOException e) {
 
-                // Does not look like a connection was established so put the EAN in the to do list
+                // Does not look like a connection was established so put the EAN into the
+                // DB table for later processing
                 writeBackEan(ean);
 
                 Log.e(LOG_TAG, "Error ", e);
@@ -111,6 +132,8 @@ public class BookService extends IntentService {
             } catch (JSONException e) {
 
                 // TODO: 2/29/16 - could not process the returned data, hmmmmmm
+
+                // TODO: 3/1/16 - comment describing that this book's data could not be determine, decide about retrying???, toast
 
                 Log.e(LOG_TAG, "Error ", e);
 
@@ -133,6 +156,41 @@ public class BookService extends IntentService {
 
             Log.d(LOG_TAG, "no network connectivity");
         }
+    }
+
+    @Nullable
+    private String getJsonString(String ean, HttpURLConnection urlConnection, BufferedReader reader) throws IOException {
+
+        final String FORECAST_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
+        final String QUERY_PARAM = "q";
+        final String ISBN_PARAM = "isbn:" + ean;
+
+        Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon().appendQueryParameter(QUERY_PARAM, ISBN_PARAM).build();
+
+        URL url = new URL(builtUri.toString());
+
+        urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("GET");
+        urlConnection.connect();
+
+        InputStream inputStream = urlConnection.getInputStream();
+        StringBuffer buffer = new StringBuffer();
+        if (inputStream == null) {
+            return null;
+        }
+
+        reader = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            buffer.append(line);
+            buffer.append("\n");
+        }
+
+        if (buffer.length() == 0) {
+            return null;
+        }
+
+        return buffer.toString();
     }
 
     private void processJson(String ean, String bookJsonString) throws JSONException {
@@ -188,39 +246,8 @@ public class BookService extends IntentService {
         }
     }
 
-    @Nullable
-    private String getJsonString(String ean, HttpURLConnection urlConnection, BufferedReader reader) throws IOException {
+    private void processTodoBook(String ean) {
 
-        final String FORECAST_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
-        final String QUERY_PARAM = "q";
-        final String ISBN_PARAM = "isbn:" + ean;
-
-        Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon().appendQueryParameter(QUERY_PARAM, ISBN_PARAM).build();
-
-        URL url = new URL(builtUri.toString());
-
-        urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("GET");
-        urlConnection.connect();
-
-        InputStream inputStream = urlConnection.getInputStream();
-        StringBuffer buffer = new StringBuffer();
-        if (inputStream == null) {
-            return null;
-        }
-
-        reader = new BufferedReader(new InputStreamReader(inputStream));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            buffer.append(line);
-            buffer.append("\n");
-        }
-
-        if (buffer.length() == 0) {
-            return null;
-        }
-
-        return buffer.toString();
     }
 
     /**
@@ -315,6 +342,13 @@ public class BookService extends IntentService {
         }
     }
 
+    /**
+     * Puts the given EAN number into the EAN DB table.  This table stores the entries for EANs
+     * that cannot be looked up online due to inadequate network connectivity.  Instead, the
+     * entries will be stored for later.
+     *
+     * @param ean - The EAN to store for later lookup
+     */
     private void writeBackEan(String ean) {
         ContentValues values= new ContentValues();
         values.put(AlexandriaContract.EanEntry._ID, ean);
