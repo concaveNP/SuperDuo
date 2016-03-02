@@ -46,7 +46,11 @@ public class NetworkConnectivityStatus {
 
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
-            setConnected(activeNetwork != null && activeNetwork.isConnectedOrConnecting());
+            boolean connected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+            Log.d(TAG, "The init context connection status: " + connected);
+
+            setConnected(connected);
         }
         else {
             Log.e(TAG, "The context was unavailable for use");
@@ -68,6 +72,28 @@ public class NetworkConnectivityStatus {
 
     public void setConnected(boolean connected) {
         this.mConnected = connected;
+        Log.d(TAG, "Connection status: " + mConnected);
+    }
+
+    public boolean checkConnected() {
+        boolean connected = false;
+
+        Context context = MainActivity.getAppContext();
+
+        if (context != null) {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+            connected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+            Log.d(TAG, "The init context connection status: " + connected);
+        }
+        else {
+            Log.e(TAG, "The context was unavailable for use");
+        }
+
+        return connected;
     }
 
 }

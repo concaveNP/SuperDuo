@@ -96,8 +96,6 @@ public class AlexandriaContract{
 
         public static final String TABLE_NAME = "eans";
 
-        public static final String CODE = "code";
-
         public static Uri buildEanUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }

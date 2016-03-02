@@ -41,8 +41,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 AlexandriaContract.BookEntry.TABLE_NAME + " (" + AlexandriaContract.BookEntry._ID + "))";
 
         final String SQL_CREATE_EAN_TABLE = "CREATE TABLE " + AlexandriaContract.EanEntry.TABLE_NAME + " ("+
-                AlexandriaContract.EanEntry._ID + " INTEGER," +
-                AlexandriaContract.EanEntry.CODE + " TEXT,";
+                AlexandriaContract.EanEntry._ID + " INTEGER)";
 
         Log.d("sql-statments",SQL_CREATE_BOOK_TABLE);
         Log.d("sql-statments",SQL_CREATE_AUTHOR_TABLE);
