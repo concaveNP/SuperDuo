@@ -40,10 +40,11 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private EditText eanEditText;
 
     private final int BOOK_LOADER_ID = 1;
+    private final int TODO_LOADER_ID = 2;
 
     private View rootView;
 
-    private final String EAN_CONTENT="eanContent";
+    private final String EAN_CONTENT = "eanContent";
 
     private static final String SCAN_FORMAT = "scanFormat";
     private static final String SCAN_CONTENTS = "scanContents";
@@ -52,6 +53,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private String mScanContents = "Contents:";
 
     private static final int RC_BARCODE_CAPTURE = 9001;
+
+    private static final int EAN_LENGTH = 13;
 
     /**
      * Default constructor
@@ -92,14 +95,16 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 String ean = s.toString();
 
                 //catch isbn10 numbers
-                if(ean.length()==10 && !ean.startsWith("978")){
+                if (ean.length() == 10 && !ean.startsWith("978")) {
                     ean="978"+ean;
                 }
 
-                if(ean.length()<13){
+                if (ean.length() < EAN_LENGTH) {
                     clearFields();
                     return;
                 }
+
+                Log.d(TAG, "Issuing BookService Intent");
 
                 //Once we have an ISBN, start a book intent
                 Intent bookIntent = new Intent(getActivity(), BookService.class);
@@ -187,7 +192,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
     private void restartLoaders(){
+        Log.d(TAG, "Restarting loaders");
         getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
+        getLoaderManager().restartLoader(TODO_LOADER_ID, null, this);
     }
 
     @Override
@@ -200,20 +207,44 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         android.support.v4.content.Loader<Cursor> result = null;
 
-        String eanStr= eanEditText.getText().toString();
-        if(eanStr.length()==10 && !eanStr.startsWith("978")){
-            eanStr="978"+eanStr;
+        String eanStr = eanEditText.getText().toString();
+        if (eanStr.length() == 10 && !eanStr.startsWith("978")) {
+            eanStr = "978" + eanStr;
         }
 
-        // TODO: 2/25/16 - not sure, but i thing the if below is a bug, http://www.makebarcode.com/specs/bookland.html
-        result = new CursorLoader(
-                getActivity(),
-                AlexandriaContract.BookEntry.buildFullBookUri(Long.parseLong(eanStr)),
-                null,
-                null,
-                null,
-                null
-        );
+        switch (id) {
+            case BOOK_LOADER_ID: {
+
+                Log.d(TAG, "onCreateLoader: BOOK_LOADER_ID loader entry found");
+
+                // TODO: 2/25/16 - not sure, but i thing the if below is a bug, http://www.makebarcode.com/specs/bookland.html
+                result = new CursorLoader(
+                        getActivity(),
+                        AlexandriaContract.BookEntry.buildFullBookUri(Long.parseLong(eanStr)),
+                        null,
+                        null,
+                        null,
+                        null
+                );
+
+                break;
+            }
+            case TODO_LOADER_ID: {
+
+                Log.d(TAG, "onCreateLoader: TODO_LOADER_ID loader entry found");
+
+                result = new CursorLoader(
+                        getActivity(),
+                        AlexandriaContract.EanEntry.buildEanUri(Long.parseLong(eanStr)),
+                        null,
+                        null,
+                        null,
+                        null
+                );
+
+                break;
+            }
+        }
 
         return result;
     }
@@ -225,33 +256,60 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             return;
         }
 
-        String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-        ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
+        switch (loader.getId()) {
+            case BOOK_LOADER_ID: {
 
-        String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
-        ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
+                Log.d(TAG, "onLoadFinished: BOOK_LOADER_ID loader entry found");
 
-        String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        String[] authorsArr = authors.split(",");
-        ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-        ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
-        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
-            rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
+                String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
+                ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
+
+                String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
+                ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
+
+                String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
+                //
+                // BUG: The authors must be checked for as sometimes a null string creeps through
+                //
+                if ((authors != null) && (!authors.isEmpty())) {
+                    String[] authorsArr = authors.split(",");
+                    ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
+                    ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",", "\n"));
+                }
+                String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
+                if (Patterns.WEB_URL.matcher(imgUrl).matches()) {
+                    new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
+                    rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
+                }
+
+                String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
+                ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
+
+                rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
+
+                break;
+            }
+
+            case TODO_LOADER_ID: {
+
+                Log.d(TAG, "onLoadFinished: TODO_LOADER_ID loader entry found");
+
+                ((TextView) rootView.findViewById(R.id.bookTitle)).setText("Unable to establish link");
+
+                ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText("Save book for later processing?");
+
+                rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
+
+                break;
+            }
         }
-
-        String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-        ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
-
-        rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
-        rootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
-
     }
 
     @Override
     public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-        // Do nothing
+
     }
 
     private void clearFields(){
@@ -288,4 +346,5 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         super.onAttach(activity);
         activity.setTitle(R.string.scan);
     }
+
 }
