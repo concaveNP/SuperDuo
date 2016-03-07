@@ -37,7 +37,7 @@ public class NetworkReceiver extends BroadcastReceiver {
         }
 
         // Notify the singleton of the device status (I changed the polarity for my sanity)
-        NetworkConnectivityStatus.getInstance().setConnected(!noConnection);
+        NetworkConnectivityStatus.performNetworkRequiredLookups(!noConnection);
 
     }
 }

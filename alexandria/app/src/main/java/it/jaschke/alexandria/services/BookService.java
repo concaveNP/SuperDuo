@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
@@ -32,12 +33,14 @@ import it.jaschke.alexandria.data.AlexandriaContract;
  */
 public class BookService extends IntentService {
 
-    private final String LOG_TAG = BookService.class.getSimpleName();
+    private final String TAG = BookService.class.getSimpleName();
 
     public static final String FETCH_BOOK = "it.jaschke.alexandria.services.action.FETCH_BOOK";
+    public static final String FETCH_BOOKS = "it.jaschke.alexandria.services.action.FETCH_BOOKS";
     public static final String DELETE_BOOK = "it.jaschke.alexandria.services.action.DELETE_BOOK";
 
     public static final String EAN = "it.jaschke.alexandria.services.extra.EAN";
+    public static final String EANS = "it.jaschke.alexandria.services.extra.EANS";
 
     public BookService() {
         super("Alexandria");
@@ -49,10 +52,20 @@ public class BookService extends IntentService {
             final String action = intent.getAction();
             if (FETCH_BOOK.equals(action)) {
                 final String ean = intent.getStringExtra(EAN);
+                Log.d(TAG, "FETCH_BOOK: " + ean);
                 fetchBook(ean);
+            } if (FETCH_BOOKS.equals(action)) {
+                final List<String> eans = intent.getStringArrayListExtra(EANS);
+                for (String ean : eans) {
+                    final String temp = ean;
+                    Log.d(TAG, "FETCH_BOOKS: " + ean);
+                    fetchBook(temp);
+                }
             } else if (DELETE_BOOK.equals(action)) {
                 final String ean = intent.getStringExtra(EAN);
+                Log.d(TAG, "DELETE_BOOK: " + ean);
                 deleteBook(ean);
+                deleteEanBook(ean);
             }
         }
     }
@@ -63,6 +76,7 @@ public class BookService extends IntentService {
      */
     private void deleteBook(String ean) {
         if (ean != null) {
+            Log.d(TAG, "deleteBook: " + ean);
             getContentResolver().delete(AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)), null, null);
         }
     }
@@ -74,6 +88,7 @@ public class BookService extends IntentService {
      */
     private void deleteEanBook(String ean) {
         if (ean != null) {
+            Log.d(TAG, "deleteEanBook: " + ean);
             getContentResolver().delete(AlexandriaContract.EanEntry.buildEanUri(Long.parseLong(ean)), null, null);
         }
     }
@@ -90,6 +105,8 @@ public class BookService extends IntentService {
 // TODO: 2/29/16 - remove if needed
 //        // Was the book successfully processed?  Default to no until success.
 //        boolean result = false;
+
+        Log.d(TAG, "fetchBook: " + ean);
 
         // Check for correct length EAN number
         if (ean.length() != 13) {
@@ -111,7 +128,9 @@ public class BookService extends IntentService {
         }
 
         // Check to see if there is network connectivity
-        if (NetworkConnectivityStatus.getInstance().checkConnected()) {
+        if (NetworkConnectivityStatus.checkConnected()) {
+
+            Log.d(TAG, "fetchBook: connectivity available, fetching book");
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -127,7 +146,7 @@ public class BookService extends IntentService {
                 // DB table for later processing
                 writeBackEan(ean);
 
-                Log.e(LOG_TAG, "Error ", e);
+                Log.e(TAG, "Error ", e);
 
             } catch (JSONException e) {
 
@@ -135,7 +154,7 @@ public class BookService extends IntentService {
 
                 // TODO: 3/1/16 - comment describing that this book's data could not be determine, decide about retrying???, toast
 
-                Log.e(LOG_TAG, "Error ", e);
+                Log.e(TAG, "Error ", e);
 
             } finally {
                 if (urlConnection != null) {
@@ -145,16 +164,19 @@ public class BookService extends IntentService {
                     try {
                         reader.close();
                     } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
+                        Log.e(TAG, "Error closing stream", e);
                     }
                 }
             }
         }
         else {
+
+            Log.d(TAG, "fetchBook: connectivity is NOT available, putting book on todo table");
+
             // Put the EAN on the to do list table
             writeBackEan(ean);
 
-            Log.d(LOG_TAG, "no network connectivity");
+            Log.d(TAG, "no network connectivity");
         }
     }
 
@@ -313,6 +335,7 @@ public class BookService extends IntentService {
     }
 
     private void writeBackBook(String ean, String title, String subtitle, String desc, String imgUrl) {
+        Log.d(TAG, "Writing book to Book table " + ean);
         ContentValues values= new ContentValues();
         values.put(AlexandriaContract.BookEntry._ID, ean);
         values.put(AlexandriaContract.BookEntry.TITLE, title);
@@ -323,6 +346,7 @@ public class BookService extends IntentService {
     }
 
     private void writeBackAuthors(String ean, JSONArray jsonArray) throws JSONException {
+        Log.d(TAG, "Writing book to Authors table " + ean);
         ContentValues values= new ContentValues();
         for (int i = 0; i < jsonArray.length(); i++) {
             values.put(AlexandriaContract.AuthorEntry._ID, ean);
@@ -333,6 +357,7 @@ public class BookService extends IntentService {
     }
 
     private void writeBackCategories(String ean, JSONArray jsonArray) throws JSONException {
+        Log.d(TAG, "Writing book to Categories table " + ean);
         ContentValues values= new ContentValues();
         for (int i = 0; i < jsonArray.length(); i++) {
             values.put(AlexandriaContract.CategoryEntry._ID, ean);
@@ -350,9 +375,14 @@ public class BookService extends IntentService {
      * @param ean - The EAN to store for later lookup
      */
     private void writeBackEan(String ean) {
+        Log.d(TAG, "Writing book to EAN table " + ean);
         ContentValues values= new ContentValues();
         values.put(AlexandriaContract.EanEntry._ID, ean);
-        getContentResolver().insert(AlexandriaContract.EanEntry.CONTENT_URI,values);
+        Uri uri = getContentResolver().insert(AlexandriaContract.EanEntry.CONTENT_URI,values);
+
+
+        Log.d(TAG, "The resulting URI of writing the EAN to the EAN table " + uri);
+
     }
 
  }

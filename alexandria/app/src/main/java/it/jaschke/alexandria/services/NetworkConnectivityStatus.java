@@ -1,11 +1,17 @@
 package it.jaschke.alexandria.services;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import java.util.ArrayList;
+
+import it.jaschke.alexandria.AddBook;
 import it.jaschke.alexandria.MainActivity;
+import it.jaschke.alexandria.data.AlexandriaContract;
 
 /**
  * Created by dave on 2/19/16.
@@ -25,57 +31,69 @@ public class NetworkConnectivityStatus {
      */
     private static final String TAG = NetworkConnectivityStatus.class.getSimpleName();
 
-    private static NetworkConnectivityStatus sInstance = null;
-
-    private boolean mConnected;
-
     /**
      * Private in order to prevent instantiation by others than this class.
-     *
-     * This constructor will make an initial call for the state of connectivity.  Thereafter, the
-     * {@link it.jaschke.alexandria.receivers.NetworkReceiver} will update the connectivity state.
      */
     protected NetworkConnectivityStatus() {
+        // Do nothing
+    }
 
-        // TODO: 2/24/16 - there is an error here, dunno why, but it looks like the context is null
+    static public void performNetworkRequiredLookups(boolean connected) {
 
-        Context context = MainActivity.getAppContext();
+        Log.d(TAG, "Connection status: " + connected);
 
-        if (context != null) {
-            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connected) {
 
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            Cursor cursor = null;
 
-            boolean connected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+            try {
 
-            Log.d(TAG, "The init context connection status: " + connected);
+                Context context = MainActivity.getAppContext();
 
-            setConnected(connected);
+                if (context != null) {
+                    // Do DB lookup
+                    cursor = context.getContentResolver().query(
+                            AlexandriaContract.EanEntry.CONTENT_URI,
+                            null, // leaving "columns" null just returns all the columns.
+                            null, // cols for "where" clause
+                            null, // values for "where" clause
+                            null  // sort order
+                    );
+
+                    ArrayList<String> eanList = new ArrayList<>();
+
+                    // Any entries indicates that EANs were found
+                    if (cursor.getCount() > 0) {
+                        // Add EANs to string array
+                        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                            // Get the primary key from the result table, which is the EAN number
+                            long eanLong = cursor.getLong(cursor.getColumnIndexOrThrow(AlexandriaContract.EanEntry._ID));
+                            String eanString = Long.toString(eanLong);
+                            eanList.add(eanString);
+                        }
+                    }
+
+                    if (!eanList.isEmpty()) {
+                        //Once we have an ISBN, start a book intent
+                        Intent bookIntent = new Intent(context, BookService.class);
+                        bookIntent.putStringArrayListExtra(BookService.EANS, eanList);
+                        bookIntent.setAction(BookService.FETCH_BOOKS);
+                        context.startService(bookIntent);
+                    }
+                }
+                else {
+                    Log.e(TAG, "There is no context to work with.");
+                }
+            }
+            finally {
+                if (cursor != null) {
+                   cursor.close();
+                }
+            }
         }
-        else {
-            Log.e(TAG, "The context was unavailable for use");
-        }
     }
 
-    public static NetworkConnectivityStatus getInstance() {
-
-        if (sInstance == null) {
-            sInstance = new NetworkConnectivityStatus();
-        }
-
-        return sInstance;
-    }
-
-    public boolean isConnected() {
-        return mConnected;
-    }
-
-    public void setConnected(boolean connected) {
-        this.mConnected = connected;
-        Log.d(TAG, "Connection status: " + mConnected);
-    }
-
-    public boolean checkConnected() {
+    static public boolean checkConnected() {
         boolean connected = false;
 
         Context context = MainActivity.getAppContext();
