@@ -128,7 +128,7 @@ public class BookService extends IntentService {
         }
 
         // Check to see if there is network connectivity
-        if (NetworkConnectivityStatus.getInstance().checkConnected()) {
+        if (NetworkConnectivityStatus.checkConnected()) {
 
             Log.d(TAG, "fetchBook: connectivity available, fetching book");
 

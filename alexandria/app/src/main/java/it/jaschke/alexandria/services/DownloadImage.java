@@ -24,7 +24,7 @@ public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
         Bitmap bookCover = null;
 
         // Check the network status to prevent hitting the network when it is down
-        if (NetworkConnectivityStatus.getInstance().checkConnected()) {
+        if (NetworkConnectivityStatus.checkConnected()) {
             try {
                 InputStream in = new java.net.URL(urlDisplay).openStream();
                 bookCover = BitmapFactory.decodeStream(in);
