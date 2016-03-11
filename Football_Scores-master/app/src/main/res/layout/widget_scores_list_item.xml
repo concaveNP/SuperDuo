@@ -20,12 +20,6 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/home_crest"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
-
             <TextView
                 android:id="@+id/home_name"
                 android:layout_width="wrap_content"
@@ -34,6 +28,7 @@
                 android:gravity="center"
                 android:text="@string/test_text"
                 android:textSize="@dimen/TeamNames" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -69,12 +64,6 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/away_crest"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
-
             <TextView
                 android:id="@+id/away_name"
                 android:layout_width="wrap_content"
@@ -83,6 +72,7 @@
                 android:gravity="center"
                 android:text="@string/test_text"
                 android:textSize="@dimen/TeamNames" />
+
         </LinearLayout>
     </LinearLayout>
 
