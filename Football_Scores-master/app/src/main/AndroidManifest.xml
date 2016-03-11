@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="barqsoft.footballscores" >
+    package="barqsoft.footballscores">
 
-    <!--
-    BUG:  Removed the version limiting setting of specifying 22 as the max SDK to allow for internet permission.
-    -->
+    <!--     BUG:  Removed the version limiting setting of specifying 22 as the max SDK to allow for internet permission. -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!--<uses-permission-->
-    <!--android:name="android.permission.INTERNET"-->
-    <!--android:maxSdkVersion="22" />-->
 
+    <!-- <uses-permission -->
+    <!-- android:name="android.permission.INTERNET" -->
+    <!-- android:maxSdkVersion="22" /> -->
     <application
-
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
-
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -33,7 +30,7 @@
         <activity
             android:name=".AboutActivity"
             android:label="About"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="barqsoft.footballscores.MainActivity" />
@@ -41,7 +38,21 @@
 
         <service android:name=".service.myFetchService" />
 
+        <receiver android:name=".ScoresAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/scores_app_widget_info" />
+        </receiver>
+
+        <activity android:name=".ScoresAppWidgetConfigureActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
-
