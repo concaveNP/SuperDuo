@@ -10,13 +10,13 @@ import android.view.View;
 import android.widget.EditText;
 
 /**
- * The configuration screen for the {@link ScoresAppWidget ScoresAppWidget} AppWidget.
+ * The configuration screen for the {@link ScoresAppWidgetProvider ScoresAppWidgetProvider} AppWidget.
  */
 public class ScoresAppWidgetConfigureActivity extends Activity {
 
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     EditText mAppWidgetText;
-    private static final String PREFS_NAME = "barqsoft.footballscores.ScoresAppWidget";
+    private static final String PREFS_NAME = "barqsoft.footballscores.ScoresAppWidgetProvider";
     private static final String PREF_PREFIX_KEY = "appwidget_";
 
     public ScoresAppWidgetConfigureActivity() {
@@ -62,7 +62,13 @@ public class ScoresAppWidgetConfigureActivity extends Activity {
 
             // It is the responsibility of the configuration activity to update the app widget
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            ScoresAppWidget.updateAppWidget(context, appWidgetManager, mAppWidgetId);
+
+            // TODO: 3/16/16 - what up dave
+            /*
+            int[] appWidgetIds = new int[1];
+            appWidgetIds[0] = mAppWidgetId;
+            ScoresAppWidgetProvider.updateAppWidget(context, appWidgetManager, appWidgetIds);
+            */
 
             // Make sure we pass back the original appWidgetId
             Intent resultValue = new Intent();

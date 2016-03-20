@@ -46,7 +46,7 @@ public class myFetchService extends IntentService {
 
     private void getData(String timeFrame) {
 
-        //Creating fetch URL
+        // Creating fetch URL
         final String BASE_URL = "http://api.football-data.org/alpha/fixtures"; //Base URL
         final String QUERY_TIME_FRAME = "timeFrame"; //Time Frame parameter to determine days
         //final String QUERY_MATCH_DAY = "matchday";
@@ -58,12 +58,19 @@ public class myFetchService extends IntentService {
         BufferedReader reader = null;
         String JSON_data = null;
 
-        //Opening Connection
+        // Opening Connection
         try {
             URL fetch = new URL(fetch_build.toString());
             m_connection = (HttpURLConnection) fetch.openConnection();
             m_connection.setRequestMethod("GET");
-            m_connection.addRequestProperty("X-Auth-Token", getString(R.string.api_key));
+
+            //
+            // The suggestion by the "Boss" would have been a BUG as it would have been a source
+            // controlled file that would have an API key visible to the public.  I've place it
+            // into an "ignored" file by Git.
+            //
+            m_connection.addRequestProperty("X-Auth-Token", getResources().getString(R.string.API_FOOTBALL_DATA_ORG));
+
             m_connection.connect();
 
             // Read the input stream into a String

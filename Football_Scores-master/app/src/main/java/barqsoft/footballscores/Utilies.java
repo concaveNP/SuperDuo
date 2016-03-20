@@ -4,6 +4,7 @@ package barqsoft.footballscores;
  * Created by yehya khaled on 3/3/2015.
  */
 public class Utilies {
+
     public static final int SERIE_A = 357;
     public static final int PREMIER_LEGAUE = 354;
     public static final int CHAMPIONS_LEAGUE = 362;
@@ -57,8 +58,9 @@ public class Utilies {
         if (teamname == null) {
             return R.drawable.no_icon;
         }
-        switch (teamname) { //This is the set of icons that are currently in the app. Feel free to find and add more
-            //as you go.
+
+        //This is the set of icons that are currently in the app. Feel free to find and add more as you go.
+        switch (teamname) {
             case "Arsenal London FC":
                 return R.drawable.arsenal;
             case "Manchester United FC":

@@ -2,12 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="barqsoft.footballscores" >
 
-<!--     BUG:  Removed the version limiting setting of specifying 22 as the max SDK to allow for internet permission. -->
+    <!-- BUG: Removed the version limiting setting of specifying 23 as the max SDK to allow for internet permission. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- <uses-permission -->
-    <!-- android:name="android.permission.INTERNET" -->
-    <!-- android:maxSdkVersion="22" /> -->
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -23,9 +20,12 @@
             </intent-filter>
         </activity>
 
+        <!--Had to enable the exporting of this provider in order to provide data for the widget.-->
         <provider
             android:name=".database.ScoresProvider"
-            android:authorities="barqsoft.footballscores" />
+            android:authorities="barqsoft.footballscores"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity
             android:name=".AboutActivity"
@@ -38,7 +38,7 @@
 
         <service android:name=".service.myFetchService" />
 
-        <receiver android:name=".ScoresAppWidget" >
+        <receiver android:name=".ScoresAppWidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -53,6 +53,11 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
+
+        <service android:name=".ScoresAppWidgetService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
     </application>
 
 </manifest>

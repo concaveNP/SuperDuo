@@ -23,10 +23,15 @@ public class PagerFragment extends Fragment {
     public static final int NUM_PAGES = 5;
     public ViewPager mPagerHandler;
     private myPageAdapter mPagerAdapter;
-    private MainScreenFragment[] viewFragments = new MainScreenFragment[5];
+
+    /**
+     * The number of {@link MainScreenFragment} to hold and display
+     */
+    private MainScreenFragment[] viewFragments = new MainScreenFragment[NUM_PAGES];
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.pager_fragment, container, false);
         mPagerHandler = (ViewPager) rootView.findViewById(R.id.pager);
         mPagerAdapter = new myPageAdapter(getChildFragmentManager());
@@ -38,30 +43,58 @@ public class PagerFragment extends Fragment {
         }
         mPagerHandler.setAdapter(mPagerAdapter);
         mPagerHandler.setCurrentItem(MainActivity.current_fragment);
+
         return rootView;
     }
 
     private class myPageAdapter extends FragmentStatePagerAdapter {
+
         public myPageAdapter(FragmentManager fm) {
             super(fm);
         }
 
+        /**
+         * Gets the item specified at the given index.  In this case it is a
+         * {@link MainScreenFragment} at the specified index.
+         *
+         * @param index
+         * @return The {@link MainScreenFragment} at the given index
+         */
         @Override
-        public Fragment getItem(int i) {
-            return viewFragments[i];
+        public Fragment getItem(int index) {
+            return viewFragments[index];
         }
 
+        /**
+         * This display will always have a specified number of displayed pages of dated data.
+         *
+         * @return The number of days of data that will be displayed
+         */
         @Override
         public int getCount() {
             return NUM_PAGES;
         }
 
-        // Returns the page title for the top indicator
+        /**
+         * Returns the page title for the top indicator.
+         *
+         * NOTE: The number of milliseconds in a day:  86400000
+         *
+         * @param position
+         * @return
+         */
         @Override
         public CharSequence getPageTitle(int position) {
             return getDayName(getActivity(), System.currentTimeMillis() + ((position - 2) * 86400000));
         }
 
+        /**
+         * Takes the time in milliseconds and converts it into a named day of the week.
+         *
+         * @param context
+         * @param dateInMillis
+         * @return
+         */
         public String getDayName(Context context, long dateInMillis) {
             // If the date is today, return the localized version of "Today" instead of the actual
             // day name.
