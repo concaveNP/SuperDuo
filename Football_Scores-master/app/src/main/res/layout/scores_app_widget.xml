@@ -1,0 +1,67 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/widget_margin"
+    android:background="@color/green13" >
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background_material_dark"
+        android:padding="10dp"
+        android:id="@+id/widget_Header_RelativeLayout">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Today:"
+            android:id="@+id/today_TextView"
+            android:paddingRight="10dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Day of the Week"
+            android:id="@+id/dayOfTheWeek_TextView"
+            android:layout_gravity="center_horizontal"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/today_TextView"
+            android:paddingRight="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Date"
+            android:id="@+id/date_TextView"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/dayOfTheWeek_TextView"
+            android:layout_toEndOf="@+id/dayOfTheWeek_TextView" />
+    </RelativeLayout>
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/widget_Score_ListView"
+        android:layout_below="@+id/widget_Header_RelativeLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:visibility="gone"
+        android:textColor="#ffffff"
+        android:text="@string/empty_view_text"
+        android:textSize="20sp" />
+
+</RelativeLayout>

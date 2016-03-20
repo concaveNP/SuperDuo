@@ -2,9 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="barqsoft.footballscores" >
 
-    <uses-permission
-        android:name="android.permission.INTERNET"
-        android:maxSdkVersion="22" />
+    <!-- BUG: Removed the version limiting setting of specifying 23 as the max SDK to allow for internet permission. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -21,9 +20,12 @@
             </intent-filter>
         </activity>
 
+        <!--Had to enable the exporting of this provider in order to provide data for the widget.-->
         <provider
-            android:name=".ScoresProvider"
-            android:authorities="barqsoft.footballscores" />
+            android:name=".database.ScoresProvider"
+            android:authorities="barqsoft.footballscores"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity
             android:name=".AboutActivity"
@@ -33,7 +35,29 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="barqsoft.footballscores.MainActivity" />
         </activity>
+
         <service android:name=".service.myFetchService" />
+
+        <receiver android:name=".ScoresAppWidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/scores_app_widget_info" />
+        </receiver>
+
+        <activity android:name=".ScoresAppWidgetConfigureActivity" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".ScoresAppWidgetService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
     </application>
 
 </manifest>
