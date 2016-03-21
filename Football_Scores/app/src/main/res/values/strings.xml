@@ -38,4 +38,6 @@
     <string name="configure">Configure</string>
     <string name="add_widget">Add widget</string>
     <string name="empty_view_text">No matches today</string>
+    <string name="ShareButtonContentDescription">Share the match with someone</string>
+    <string name="AddWidgetContentDescription">Adds the configured widget</string>
 </resources>
