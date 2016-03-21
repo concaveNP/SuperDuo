@@ -27,8 +27,6 @@ public class ScoresAdapter extends CursorAdapter {
 
     public double detail_match_id = 0;
 
-    private String FOOTBALL_SCORES_HASHTAG = "#Football_Scores";
-
     /**
      * In order to reuse this Adapter class for both the app and the widget an additional perameter
      * is being given to distinguish one from the other.  Widget adapters will not additionally
@@ -102,12 +100,25 @@ public class ScoresAdapter extends CursorAdapter {
 
     }
 
-    public Intent createShareForecastIntent(String ShareText) {
+    /**
+     * Method will start an intent that will share the given text with someone.
+     *
+     * NOTE:  This could be considered a BUG as it was publicly exposed.
+     *
+     * @param ShareText - The text to share
+     * @return The created intent
+     */
+    private Intent createShareForecastIntent(String ShareText) {
+
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        //
+        // BUG: The FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET flag is deprecated in ver 21 and FLAG_ACTIVITY_NEW_DOCUMENT should be used instead.
+        //
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, ShareText + FOOTBALL_SCORES_HASHTAG);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, ShareText + mContext.getString(R.string.HASHTAG_FOOTBALL_SCORES));
         return shareIntent;
+
     }
 
 }

@@ -37,7 +37,19 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="configure">Configure</string>
     <string name="add_widget">Add widget</string>
+
+    <!--This text will be displayed within the widget if there is no data to be displayed.  -->
+    <!--Hopefully, the term "match" is appropriate in the UK context.  :)-->
     <string name="empty_view_text">No matches today</string>
+
+    <!--The context description of the "Share" button for those who are impaired-->
     <string name="ShareButtonContentDescription">Share the match with someone</string>
+
+    <!--The context description of the "Add Widget" button for those who are impaired-->
     <string name="AddWidgetContentDescription">Adds the configured widget</string>
+
+    <!--The Twitter hashtag string to use for sharing with friends via share functionality.-->
+    <string name="HASHTAG_FOOTBALL_SCORES">#Football_Scores</string>
+
 </resources>
+
