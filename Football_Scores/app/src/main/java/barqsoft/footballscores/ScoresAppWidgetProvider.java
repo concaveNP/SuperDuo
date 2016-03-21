@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import barqsoft.footballscores.service.myFetchService;
+import barqsoft.footballscores.service.FetchScoresService;
 
 /**
  * Implementation of App Widget functionality.
@@ -102,7 +102,7 @@ public class ScoresAppWidgetProvider extends AppWidgetProvider {
     public void onEnabled(Context context) {
 
         // Start the scores retrieval service (if not already done)
-        Intent service_start = new Intent(context, myFetchService.class);
+        Intent service_start = new Intent(context, FetchScoresService.class);
         context.startService(service_start);
 
     }
@@ -120,7 +120,7 @@ public class ScoresAppWidgetProvider extends AppWidgetProvider {
     public void onDisabled(Context context) {
 
         // Stop the scores retrieval service (the app will restart it if needed)
-        Intent service_stop = new Intent(context, myFetchService.class);
+        Intent service_stop = new Intent(context, FetchScoresService.class);
         context.stopService(service_stop);
 
         // TODO: 3/15/16 - NOTE: if there are multiple instances of widgets deployed it might make

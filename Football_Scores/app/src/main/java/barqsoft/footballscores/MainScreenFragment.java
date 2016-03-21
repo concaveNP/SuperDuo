@@ -14,7 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import barqsoft.footballscores.database.DatabaseContract;
-import barqsoft.footballscores.service.myFetchService;
+import barqsoft.footballscores.service.FetchScoresService;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -53,7 +53,7 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
 
         // Starts the service that provides data updates to the DB
-        Intent service_start = new Intent(getActivity(), myFetchService.class);
+        Intent service_start = new Intent(getActivity(), FetchScoresService.class);
         getActivity().startService(service_start);
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);

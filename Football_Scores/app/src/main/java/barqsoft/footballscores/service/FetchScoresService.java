@@ -28,12 +28,12 @@ import barqsoft.footballscores.database.DatabaseContract;
 /**
  * Created by yehya khaled on 3/2/2015.
  */
-public class myFetchService extends IntentService {
+public class FetchScoresService extends IntentService {
 
-    public static final String LOG_TAG = "myFetchService";
+    public static final String LOG_TAG = "FetchScoresService";
 
-    public myFetchService() {
-        super("myFetchService");
+    public FetchScoresService() {
+        super("FetchScoresService");
     }
 
     @Override
