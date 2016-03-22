@@ -51,5 +51,11 @@
     <!--The Twitter hashtag string to use for sharing with friends via share functionality.-->
     <string name="HASHTAG_FOOTBALL_SCORES">#Football_Scores</string>
 
+    <!--The base url used in querying for data from -->
+    <string name="BASE_URL">http://api.football-data.org/alpha/fixtures</string>
+
+    <!--Time Frame parameter to determine days-->
+    <string name="QUERY_TIME_FRAME">timeFrame</string>
+
 </resources>
 

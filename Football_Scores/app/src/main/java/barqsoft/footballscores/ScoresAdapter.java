@@ -40,16 +40,20 @@ public class ScoresAdapter extends CursorAdapter {
      *            widget.
      */
     public ScoresAdapter(Context context, Cursor cursor, int flags, boolean app) {
+
         super(context, cursor, flags);
+
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
+
         View mItem = LayoutInflater.from(context).inflate(R.layout.scores_list_item, parent, false);
         ViewHolder mHolder = new ViewHolder(mItem);
         mItem.setTag(mHolder);
-        //Log.v(FetchScoreTask.LOG_TAG,"new View inflated");
+
         return mItem;
+
     }
 
     @Override
@@ -68,16 +72,11 @@ public class ScoresAdapter extends CursorAdapter {
         mHolder.away_crest.setImageResource(Utilies.getTeamCrestByTeamName( cursor.getString(COL_AWAY)
         ));
 
-        //Log.v(FetchScoreTask.LOG_TAG,mHolder.home_name.getText() + " Vs. " + mHolder.away_name.getText() +" id " + String.valueOf(mHolder.match_id));
-        //Log.v(FetchScoreTask.LOG_TAG,String.valueOf(detail_match_id));
-
         LayoutInflater vi = (LayoutInflater) context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = vi.inflate(R.layout.detail_fragment, null);
         ViewGroup container = (ViewGroup) view.findViewById(R.id.details_fragment_container);
 
         if (mHolder.match_id == detail_match_id) {
-
-            //Log.v(FetchScoreTask.LOG_TAG,"will insert extraView");
 
             container.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             TextView match_day = (TextView) v.findViewById(R.id.matchday_textview);
@@ -112,11 +111,12 @@ public class ScoresAdapter extends CursorAdapter {
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         //
-        // BUG: The FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET flag is deprecated in ver 21 and FLAG_ACTIVITY_NEW_DOCUMENT should be used instead.
+        // BUG: (kinda) The FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET flag is deprecated in ver 21 and FLAG_ACTIVITY_NEW_DOCUMENT should be used instead.
         //
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, ShareText + mContext.getString(R.string.HASHTAG_FOOTBALL_SCORES));
+
         return shareIntent;
 
     }

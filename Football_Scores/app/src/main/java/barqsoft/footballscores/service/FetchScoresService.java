@@ -30,14 +30,24 @@ import barqsoft.footballscores.database.DatabaseContract;
  */
 public class FetchScoresService extends IntentService {
 
-    public static final String LOG_TAG = "FetchScoresService";
+    /**
+     * Simple class name used for debug logging.
+     */
+    public static final String LOG_TAG = FetchScoresService.class.getSimpleName();
 
+    /**
+     * Default constructor
+     */
     public FetchScoresService() {
-        super("FetchScoresService");
+
+        // Give the class name for debug logging purposes
+        super(LOG_TAG);
+
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
         getData("n2");
         getData("p2");
 
@@ -46,14 +56,13 @@ public class FetchScoresService extends IntentService {
 
     private void getData(String timeFrame) {
 
-        // Creating fetch URL
-        final String BASE_URL = "http://api.football-data.org/alpha/fixtures"; //Base URL
-        final String QUERY_TIME_FRAME = "timeFrame"; //Time Frame parameter to determine days
+        // Creating the fetch URL by building from the Base URL and the time frame parameter to determine days
+        final String baseUrl = getBaseContext().getString(R.string.BASE_URL);
+        final String queryTimeFrame = getBaseContext().getString(R.string.QUERY_TIME_FRAME );
         //final String QUERY_MATCH_DAY = "matchday";
 
-        Uri fetch_build = Uri.parse(BASE_URL).buildUpon().appendQueryParameter(QUERY_TIME_FRAME, timeFrame).build();
+        Uri fetch_build = Uri.parse(baseUrl).buildUpon().appendQueryParameter(queryTimeFrame, timeFrame).build();
 
-        //Log.v(LOG_TAG, "The url we are looking at is: "+fetch_build.toString()); //log spam
         HttpURLConnection m_connection = null;
         BufferedReader reader = null;
         String JSON_data = null;
@@ -130,7 +139,9 @@ public class FetchScoresService extends IntentService {
     }
 
     private void processJSONdata(String JSONdata, Context mContext, boolean isReal) {
-        //JSON data
+
+        // JSON data
+
         // This set of league codes is for the 2015/2016 season. In fall of 2016, they will need to
         // be updated. Feel free to use the codes
         final String BUNDESLIGA1 = "394";
@@ -144,7 +155,6 @@ public class FetchScoresService extends IntentService {
         final String PRIMERA_LIGA = "402";
         final String Bundesliga3 = "403";
         final String EREDIVISIE = "404";
-
 
         final String SEASON_LINK = "http://api.football-data.org/alpha/soccerseasons/";
         final String MATCH_LINK = "http://api.football-data.org/alpha/fixtures/";
@@ -176,12 +186,12 @@ public class FetchScoresService extends IntentService {
 
             //ContentValues to be inserted
             Vector<ContentValues> values = new Vector<ContentValues>(matches.length());
-            for (int i = 0; i < matches.length(); i++) {
+            for (int index = 0; index < matches.length(); index++) {
 
-                JSONObject match_data = matches.getJSONObject(i);
-                League = match_data.getJSONObject(LINKS).getJSONObject(SOCCER_SEASON).
-                        getString("href");
+                JSONObject match_data = matches.getJSONObject(index);
+                League = match_data.getJSONObject(LINKS).getJSONObject(SOCCER_SEASON).getString("href");
                 League = League.replace(SEASON_LINK, "");
+
                 //This if statement controls which leagues we're interested in the data from.
                 //add leagues here in order to have them be added to the DB.
                 // If you are finding no data in the app, check that this contains all the leagues.
@@ -191,12 +201,11 @@ public class FetchScoresService extends IntentService {
                         League.equals(BUNDESLIGA1) ||
                         League.equals(BUNDESLIGA2) ||
                         League.equals(PRIMERA_DIVISION)) {
-                    match_id = match_data.getJSONObject(LINKS).getJSONObject(SELF).
-                            getString("href");
+                    match_id = match_data.getJSONObject(LINKS).getJSONObject(SELF).getString("href");
                     match_id = match_id.replace(MATCH_LINK, "");
                     if (!isReal) {
                         //This if statement changes the match ID of the dummy data so that it all goes into the database
-                        match_id = match_id + Integer.toString(i);
+                        match_id = match_id + Integer.toString(index);
                     }
 
                     mDate = match_data.getString(MATCH_DATE);
@@ -204,24 +213,31 @@ public class FetchScoresService extends IntentService {
                     mDate = mDate.substring(0, mDate.indexOf("T"));
                     SimpleDateFormat match_date = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss");
                     match_date.setTimeZone(TimeZone.getTimeZone("UTC"));
+
                     try {
-                        Date parseddate = match_date.parse(mDate + mTime);
-                        SimpleDateFormat new_date = new SimpleDateFormat("yyyy-MM-dd:HH:mm");
-                        new_date.setTimeZone(TimeZone.getDefault());
-                        mDate = new_date.format(parseddate);
+
+                        Date parsedDate = match_date.parse(mDate + mTime);
+                        SimpleDateFormat newDate = new SimpleDateFormat("yyyy-MM-dd:HH:mm");
+                        newDate.setTimeZone(TimeZone.getDefault());
+                        mDate = newDate.format(parsedDate);
                         mTime = mDate.substring(mDate.indexOf(":") + 1);
                         mDate = mDate.substring(0, mDate.indexOf(":"));
 
                         if (!isReal) {
+
                             //This if statement changes the dummy data's date to match our current date range.
-                            Date fragmentdate = new Date(System.currentTimeMillis() + ((i - 2) * 86400000));
-                            SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");
-                            mDate = mformat.format(fragmentdate);
+                            Date fragmentDate = new Date(System.currentTimeMillis() + ((index - 2) * 86400000));
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                            mDate = simpleDateFormat.format(fragmentDate);
+
                         }
                     } catch (Exception e) {
+
                         Log.d(LOG_TAG, "error here!");
                         Log.e(LOG_TAG, e.getMessage());
+
                     }
+
                     Home = match_data.getString(HOME_TEAM);
                     Away = match_data.getString(AWAY_TEAM);
                     Home_goals = match_data.getJSONObject(RESULT).getString(HOME_GOALS);
@@ -250,15 +266,14 @@ public class FetchScoresService extends IntentService {
                     values.add(match_values);
                 }
             }
-            int inserted_data = 0;
+
             ContentValues[] insert_data = new ContentValues[values.size()];
             values.toArray(insert_data);
-            inserted_data = mContext.getContentResolver().bulkInsert(
-                    DatabaseContract.BASE_CONTENT_URI, insert_data);
 
-            //Log.v(LOG_TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
         } catch (JSONException e) {
+
             Log.e(LOG_TAG, e.getMessage());
+
         }
 
     }
