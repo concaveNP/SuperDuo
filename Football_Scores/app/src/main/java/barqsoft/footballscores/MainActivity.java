@@ -9,34 +9,57 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity {
 
-    public static int selected_match_id;
-    public static int current_fragment = 2;
-    public static String LOG_TAG = "MainActivity";
-    private final String save_tag = "Save Test";
-    private PagerFragment my_main;
+    /**
+     * The logging tag string to be associated with log data for this class
+     */
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    /**
+     *
+     */
+    public static int mSelectedMatchId;
+
+    /**
+     *
+     */
+    public static int mCurrentFragment = 2;
+
+    // TODO: 3/23/16 - This could be a bug, dunno if saving this instance value of a reference is a good idea
+    /**
+     *
+     */
+    private PagerFragment pagerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(LOG_TAG, "Reached MainActivity onCreate");
+
+        Log.d(TAG, "Reached MainActivity onCreate");
+
         if (savedInstanceState == null) {
-            my_main = new PagerFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, my_main)
-                    .commit();
+
+            pagerFragment = new PagerFragment();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, pagerFragment).commit();
+
         }
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
         return true;
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -50,28 +73,41 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.v(save_tag, "will save");
-        Log.v(save_tag, "fragment: " + String.valueOf(my_main.mPagerHandler.getCurrentItem()));
-        Log.v(save_tag, "selected id: " + selected_match_id);
-        outState.putInt("Pager_Current", my_main.mPagerHandler.getCurrentItem());
-        outState.putInt("Selected_match", selected_match_id);
-        getSupportFragmentManager().putFragment(outState, "my_main", my_main);
+
+        // Log the states that will be saved
+        Log.v(TAG, "will save");
+        Log.v(TAG, "fragment: " + String.valueOf(pagerFragment.mPagerHandler.getCurrentItem()));
+        Log.v(TAG, "selected id: " + mSelectedMatchId);
+
+        // Save the current states
+        outState.putInt(getResources().getString(R.string.PAGER_CURRENT), pagerFragment.mPagerHandler.getCurrentItem());
+        outState.putInt(getResources().getString(R.string.SELECTED_MATCH), mSelectedMatchId);
+        getSupportFragmentManager().putFragment(outState, getResources().getString(R.string.PAGER_FRAGMENT), pagerFragment);
+
         super.onSaveInstanceState(outState);
+
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.v(save_tag, "will retrive");
-        Log.v(save_tag, "fragment: " + String.valueOf(savedInstanceState.getInt("Pager_Current")));
-        Log.v(save_tag, "selected id: " + savedInstanceState.getInt("Selected_match"));
-        current_fragment = savedInstanceState.getInt("Pager_Current");
-        selected_match_id = savedInstanceState.getInt("Selected_match");
-        my_main = (PagerFragment) getSupportFragmentManager().getFragment(savedInstanceState, "my_main");
+
+        // Extract the saved states
+        mCurrentFragment = savedInstanceState.getInt(getResources().getString(R.string.PAGER_CURRENT));
+        mSelectedMatchId = savedInstanceState.getInt(getResources().getString(R.string.SELECTED_MATCH));
+        pagerFragment = (PagerFragment) getSupportFragmentManager().getFragment(savedInstanceState, getResources().getString(R.string.PAGER_FRAGMENT));
+
+        // Log the states that will be extracted
+        Log.v(TAG, "will retrieve");
+        Log.v(TAG, "fragment: " + mCurrentFragment);
+        Log.v(TAG, "selected id: " + mSelectedMatchId);
+
         super.onRestoreInstanceState(savedInstanceState);
+
     }
 
 }
