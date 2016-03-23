@@ -14,7 +14,7 @@ public class Utilies {
     public static String getLeague(int league_num) {
         switch (league_num) {
             case SERIE_A:
-                return "Seria A";
+                return  "Seria A";
             case PREMIER_LEGAUE:
                 return "Premier League";
             case CHAMPIONS_LEAGUE:

@@ -51,11 +51,11 @@ public class ScoresAppWidgetProvider extends AppWidgetProvider {
             Date date = Calendar.getInstance().getTime();
 
             // Get the Day of the Week
-            SimpleDateFormat dowFormat = new SimpleDateFormat("EE");
+            SimpleDateFormat dowFormat = new SimpleDateFormat(context.getResources().getString(R.string.DAY_OF_WEEK_SHORT_FORMAT));
             String finalDay = dowFormat.format(date);
 
             // Get the date
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat dateFormat = new SimpleDateFormat(context.getResources().getString(R.string.DATE_FORMAT));
             String finalDate = dateFormat.format(date);
 
             // Construct the RemoteViews object
@@ -124,7 +124,7 @@ public class ScoresAppWidgetProvider extends AppWidgetProvider {
         context.stopService(service_stop);
 
         // TODO: 3/15/16 - NOTE: if there are multiple instances of widgets deployed it might make
-        // sense to keep a static count of them in order not to interrupt the service (investiage
+        // sense to keep a static count of them in order not to interrupt the service (investigate
         // if time allows)
 
     }

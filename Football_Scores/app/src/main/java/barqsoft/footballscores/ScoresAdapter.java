@@ -15,6 +15,7 @@ import android.widget.TextView;
  */
 public class ScoresAdapter extends CursorAdapter {
 
+    // TODO: 3/23/16 - I don't like numbered column references, if time, convert to named (as the StackRemoteViewsFactory does)
     public static final int COL_HOME = 3;
     public static final int COL_AWAY = 4;
     public static final int COL_HOME_GOALS = 6;
@@ -111,10 +112,12 @@ public class ScoresAdapter extends CursorAdapter {
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         //
-        // BUG: (kinda) The FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET flag is deprecated in ver 21 and FLAG_ACTIVITY_NEW_DOCUMENT should be used instead.
+        // BUG: (kinda)
+        // The FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET flag is deprecated in ver 21 and
+        // FLAG_ACTIVITY_NEW_DOCUMENT should be used instead.
         //
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        shareIntent.setType("text/plain");
+        shareIntent.setType(mContext.getResources().getString(R.string.SHARE_MIME_TYPE));
         shareIntent.putExtra(Intent.EXTRA_TEXT, ShareText + mContext.getString(R.string.HASHTAG_FOOTBALL_SCORES));
 
         return shareIntent;

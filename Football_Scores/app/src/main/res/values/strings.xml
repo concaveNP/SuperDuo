@@ -51,20 +51,32 @@
     <!--The Twitter hashtag string to use for sharing with friends via share functionality.-->
     <string name="HASHTAG_FOOTBALL_SCORES">#Football_Scores</string>
 
+    <!--When issuing the share intent, this is MIME data type-->
+    <string name="SHARE_MIME_TYPE">text/plain</string>
+
     <!--The base url used in querying for data from -->
     <string name="BASE_URL">http://api.football-data.org/alpha/fixtures</string>
 
     <!--Time Frame parameter to determine days-->
-    <string name="QUERY_TIME_FRAME">timeFrame</string>
+    <string name="QUERY_TIME_FRAME">Query_Time_Frame</string>
 
     <!--The Instant State value for the current page displayed-->
     <string name="PAGER_CURRENT">Pager_Current</string>
 
     <!--The Instant State value for the selected match-->
-    <string name="SELECTED_MATCH">Selected_match</string>
+    <string name="SELECTED_MATCH">Selected_Match</string>
 
-    <!--The Instant State value for the selected match-->
-    <string name="SELECTED_MATCH">Selected_match</string>
+    <!--   -->
+    <string name="PAGER_FRAGMENT">Pager_Fragment</string>
+
+    <!--THE European data format-->
+    <string name="DATE_FORMAT">yyyy-MM-dd</string>
+
+    <!--The day of the week string format (i.e. Friday)-->
+    <string name="DAY_OF_WEEK_FORMAT">EEEE</string>
+
+    <!--The day of the week "short" string format (i.e. Fri)-->
+    <string name="DAY_OF_WEEK_SHORT_FORMAT">EE</string>
 
 </resources>
 
