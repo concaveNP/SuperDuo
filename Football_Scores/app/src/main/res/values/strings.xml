@@ -57,5 +57,14 @@
     <!--Time Frame parameter to determine days-->
     <string name="QUERY_TIME_FRAME">timeFrame</string>
 
+    <!--The Instant State value for the current page displayed-->
+    <string name="PAGER_CURRENT">Pager_Current</string>
+
+    <!--The Instant State value for the selected match-->
+    <string name="SELECTED_MATCH">Selected_match</string>
+
+    <!--The Instant State value for the selected match-->
+    <string name="SELECTED_MATCH">Selected_match</string>
+
 </resources>
 
