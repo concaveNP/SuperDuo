@@ -1,5 +1,6 @@
 package barqsoft.footballscores;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -13,6 +14,11 @@ public class MainActivity extends ActionBarActivity {
      * The logging tag string to be associated with log data for this class
      */
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    /**
+     * Put in for access by non android based classes.
+     */
+    private static Context sContext;
 
     /**
      *
@@ -34,9 +40,13 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        // Save off the context for other POJO use
+        MainActivity.sContext = getApplicationContext();
 
         Log.d(TAG, "Reached MainActivity onCreate");
+
+        setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
 
@@ -108,6 +118,10 @@ public class MainActivity extends ActionBarActivity {
 
         super.onRestoreInstanceState(savedInstanceState);
 
+    }
+
+    public static Context getAppContext() {
+        return MainActivity.sContext;
     }
 
 }

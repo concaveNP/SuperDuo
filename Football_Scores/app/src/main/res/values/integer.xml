@@ -4,4 +4,11 @@
     <!--A constant number that is the number of miliseconds in a day-->
     <integer name="NUMBER_OF_MILISECONDS_IN_A_DAY">86400000</integer>
 
+    <!--The League numbers:-->
+    <integer name="SERIE_A_LEAGUE_NUMBER">357</integer>
+    <integer name="PREMIER_LEAGUE_LEAGUE_NUMBER">354</integer>
+    <integer name="CHAMPIONS_LEAGUE_LEAGUE_NUMBER">362</integer>
+    <integer name="PRIMERA_DIVISION_LEAGUE_NUMBER">358</integer>
+    <integer name="BUNDESLIGA_LEAGUE_NUMBER">351</integer>
+
 </resources>
