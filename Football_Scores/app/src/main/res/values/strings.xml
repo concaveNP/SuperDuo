@@ -49,34 +49,66 @@
     <string name="AddWidgetContentDescription">Adds the configured widget</string>
 
     <!--The Twitter hashtag string to use for sharing with friends via share functionality.-->
-    <string name="HASHTAG_FOOTBALL_SCORES">#Football_Scores</string>
+    <string name="HASHTAG_FOOTBALL_SCORES" translatable="false">#Football_Scores</string>
 
     <!--When issuing the share intent, this is MIME data type-->
-    <string name="SHARE_MIME_TYPE">text/plain</string>
+    <string name="SHARE_MIME_TYPE" translatable="false">text/plain</string>
 
     <!--The base url used in querying for data from -->
-    <string name="BASE_URL">http://api.football-data.org/alpha/fixtures</string>
+    <string name="BASE_URL" translatable="false">http://api.football-data.org/alpha/fixtures</string>
 
     <!--Time Frame parameter to determine days-->
-    <string name="QUERY_TIME_FRAME">Query_Time_Frame</string>
+    <string name="QUERY_TIME_FRAME" translatable="false">Query_Time_Frame</string>
 
     <!--The Instant State value for the current page displayed-->
-    <string name="PAGER_CURRENT">Pager_Current</string>
+    <string name="PAGER_CURRENT" translatable="false">Pager_Current</string>
 
     <!--The Instant State value for the selected match-->
-    <string name="SELECTED_MATCH">Selected_Match</string>
+    <string name="SELECTED_MATCH" translatable="false">Selected_Match</string>
 
-    <!--   -->
-    <string name="PAGER_FRAGMENT">Pager_Fragment</string>
+    <!--Reference to a pager fragment-->
+    <string name="PAGER_FRAGMENT" translatable="false">Pager_Fragment</string>
 
     <!--THE European data format-->
-    <string name="DATE_FORMAT">yyyy-MM-dd</string>
+    <string name="DATE_FORMAT" translatable="false">yyyy-MM-dd</string>
 
     <!--The day of the week string format (i.e. Friday)-->
-    <string name="DAY_OF_WEEK_FORMAT">EEEE</string>
+    <string name="DAY_OF_WEEK_FORMAT" translatable="false">EEEE</string>
 
     <!--The day of the week "short" string format (i.e. Fri)-->
-    <string name="DAY_OF_WEEK_SHORT_FORMAT">EE</string>
+    <string name="DAY_OF_WEEK_SHORT_FORMAT" translatable="false">EE</string>
+
+
+    <!--These are the League Names: (I do NOT think we would want these translated)-->
+    <string name="SERIA_A_LEAGUE" translatable="false">Seria A</string>
+    <string name="PREMIER_LEAGUE" translatable="false">Premier League</string>
+    <string name="UEFA_CHAMPIONS_LEAGUE" translatable="false">UEFA Champions League</string>
+    <string name="PRIMERA_DIVISION_LEAGUE" translatable="false">Primera Division</string>
+    <string name="BUNDESLIGA_LEAGUE" translatable="false">Bundesliga</string>
+    <string name="UNKNOWN_LEAGUE">Not know League, Please report</string>
+
+
+    <!--These are the match day names:  (I DO think that these could be translated)-->
+    <string name="LESS_OR_EQUAL_6_MATCH">Group Stages, Matchday : 6</string>
+    <string name="EQUAL_7_OR_8_MATCH">First Knockout round</string>
+    <string name="EQUAL_9_OR_10_MATCH">QuarterFinal</string>
+    <string name="EQUAL_11_OR_12_MATCH">SemiFinal</string>
+    <string name="ELSE_MATCH">Final</string>
+    <string name="NON_CHAMPIONS_LEAGUE_MATCH">Matchday : </string>
+
+
+    <!--Team names: (I do NOT think we would want these translated)-->
+    <string name="ARSENAL_LONDON_FC_TEAM" translatable="false">Arsenal London FC</string>
+    <string name="MANCHESTER_UNITED_FC_TEAM" translatable="false">Manchester United FC</string>
+    <string name="SWANSEA_CITY_TEAM" translatable="false">Swansea City</string>
+    <string name="LEICESTER_CITY_TEAM" translatable="false">Leicester City</string>
+    <string name="EVERTON_FC_TEAM" translatable="false">Everton FC</string>
+    <string name="WEST_HAM_UNITED_FC_TEAM" translatable="false">West Ham United FC</string>
+    <string name="TOTTENHAM_HOTSPUR_FC_TEAM" translatable="false">Tottenham Hotspur FC</string>
+    <string name="WEST_BROMWICH_ALBION_TEAM" translatable="false">West Bromwich Albion</string>
+    <string name="SUNDERLAND_AFC_TEAM" translatable="false">Sunderland AFC</string>
+    <string name="STOKE_CITY_FC_TEAM_TEAM" translatable="false">Stoke City FC</string>
+
 
 </resources>
 
