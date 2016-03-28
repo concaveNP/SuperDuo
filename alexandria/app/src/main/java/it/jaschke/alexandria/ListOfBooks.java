@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,7 @@ import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.receivers.NetworkReceiver;
 
 
-public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ListOfBooks extends AlexandriaFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private BookListAdapter bookListAdapter;
     private ListView bookList;
@@ -38,13 +37,22 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Initialize the DB loaders
+        //getLoaderManager().initLoader(LOADER_ID , null, this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // TODO: 2/23/16 - this is a big design bug, the class is built with the intent of using a
-        // LoadManager, but never uses it, this work is being on the GUI thread I believe and will never update
+        //
+        // BUG: This is an unfinished implementation bug, the class is built with the intent of
+        // using a LoadManager, but never uses it.  This DB query is being done on the GUI thread
+        // currently.  As it was implemented there could never be any updating the data displayed.
+        //
+
+
+
         Cursor cursor = getActivity().getContentResolver().query(
                 AlexandriaContract.BookEntry.CONTENT_URI,
                 null, // leaving "columns" null just returns all the columns.
@@ -52,7 +60,6 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
                 null, // values for "where" clause
                 null  // sort order
         );
-
 
         bookListAdapter = new BookListAdapter(getActivity(), cursor, 0);
         View rootView = inflater.inflate(R.layout.fragment_list_of_books, container, false);
@@ -136,21 +143,4 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
         activity.setTitle(R.string.books);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
-        PackageManager pm = getContext().getPackageManager();
-        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
-        PackageManager pm = getContext().getPackageManager();
-        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP );
-    }
 }

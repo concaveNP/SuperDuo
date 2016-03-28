@@ -1,16 +1,15 @@
 package it.jaschke.alexandria;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.os.ResultReceiver;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -22,18 +21,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.vision.barcode.Barcode;
+
 import it.jaschke.alexandria.barcode.BarcodeCaptureActivity;
 import it.jaschke.alexandria.data.AlexandriaContract;
-import it.jaschke.alexandria.receivers.NetworkReceiver;
 import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.services.DownloadImage;
 
 
-import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.vision.barcode.Barcode;
-
-
-public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AddBook extends AlexandriaFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
 
@@ -45,12 +42,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private View rootView;
 
     private final String EAN_CONTENT = "eanContent";
-
-    private static final String SCAN_FORMAT = "scanFormat";
-    private static final String SCAN_CONTENTS = "scanContents";
-
-    private String mScanFormat = "Format:";
-    private String mScanContents = "Contents:";
 
     private static final int RC_BARCODE_CAPTURE = 9001;
 
@@ -65,11 +56,13 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+
         super.onSaveInstanceState(outState);
 
         if (eanEditText != null) {
             outState.putString(EAN_CONTENT, eanEditText.getText().toString());
         }
+
     }
 
     @Override
@@ -106,11 +99,32 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
                 Log.d(TAG, "Issuing BookService Intent");
 
-                //Once we have an ISBN, start a book intent
+                //
+                // Once we have an ISBN, start a book intent.
+                //
+                // BUG: In addition to the EAN number, provide the intent a {@link ResultReceiver}
+                // object in order to inform us of the completed service.  In any situation,
+                // if the IntentService indicates a result then we should re-init/restart the
+                // loaders.  As the {@link BookService} will add a DB entry of one of the two
+                // loaders that this object listens for, we guarantee the loader processing by
+                // restarting them after the IntentService completes.  We need to perform this
+                // action because the restarting design solution for this object cannot make
+                // the guarantee of the loader state upon creation of the intent.  It is possible
+                // for the loaders to not yet be restarted and miss the DB update the BookService
+                // performs.  So, we make sure it does not get missed.
+                //
                 Intent bookIntent = new Intent(getActivity(), BookService.class);
                 bookIntent.putExtra(BookService.EAN, ean);
+                bookIntent.putExtra(BookService.RESULT, new ResultReceiver(new Handler()){
+                    @Override
+                    protected void onReceiveResult(int resultCode, Bundle resultData) {
+                        restartLoaders();
+                    }
+                });
                 bookIntent.setAction(BookService.FETCH_BOOK);
                 getActivity().startService(bookIntent);
+
+                // Restart the loaders by looking for fresh data to display
                 AddBook.this.restartLoaders();
             }
         });
@@ -119,22 +133,22 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             @Override
             public void onClick(View v) {
 
-            // TODO: 2/23/16 - put in words explaining the missing functionality now being added
+                // Getting the preference settings for auto focus and auto flash.  Currently, there
+                // is no option exposed to the user to manage these settings.  Future enhancement.
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+                Boolean autoFocus = prefs.getBoolean(getResources().getString(R.string.auto_focus_setting), true);
+                Boolean autoFlash = prefs.getBoolean(getResources().getString(R.string.auto_flash_setting), false);
 
-            // Get the preference settings for auto focus and auto flash
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-            Boolean autoFocus = prefs.getBoolean(getResources().getString(R.string.auto_focus_setting), true);
-            Boolean autoFlash = prefs.getBoolean(getResources().getString(R.string.auto_flash_setting), false);
-
-            // Launch barcode activity
-            Intent intent = new Intent(getContext(), BarcodeCaptureActivity.class);
-            intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFlash);
-            intent.putExtra(BarcodeCaptureActivity.UseFlash, autoFocus);
-            startActivityForResult(intent, RC_BARCODE_CAPTURE);
+                // Launch barcode activity
+                Intent intent = new Intent(getContext(), BarcodeCaptureActivity.class);
+                intent.putExtra(BarcodeCaptureActivity.AutoFocus, autoFlash);
+                intent.putExtra(BarcodeCaptureActivity.UseFlash, autoFocus);
+                startActivityForResult(intent, RC_BARCODE_CAPTURE);
 
             }
         });
 
+        // Nothing is really because the book has already been added to a DB table
         rootView.findViewById(R.id.save_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,6 +156,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             }
         });
 
+        // We have to specifically go and remove this book from the DB as the user does not want it
         rootView.findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -153,7 +168,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             }
         });
 
-        if(savedInstanceState!=null){
+        // Save the current EAN number to the instant state information
+        if (savedInstanceState != null) {
             eanEditText.setText(savedInstanceState.getString(EAN_CONTENT));
             eanEditText.setHint("");
         }
@@ -164,6 +180,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     // TODO: 2/17/16 - put in fixed comment from example app
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        Log.d(TAG, "onActivityResult, with requestCode=" + requestCode + ", and resultCode=" + resultCode);
+
         if (requestCode == RC_BARCODE_CAPTURE) {
             if (resultCode == CommonStatusCodes.SUCCESS) {
                 if (data != null) {
@@ -192,16 +211,23 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
     private void restartLoaders(){
+
         Log.d(TAG, "Restarting loaders");
+
         getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
         getLoaderManager().restartLoader(TODO_LOADER_ID, null, this);
+
     }
 
     @Override
     public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        // Check for a valid EAN number to work with
-        if (eanEditText.getText().length() == 0) {
+        //
+        // BUG: I've seen some situations where field can be null/uninitialized and will require
+        // checking for a valid EAN number to work with.
+        //
+        if ((eanEditText == null) || (eanEditText.getText() == null) || (eanEditText.getText().length() == 0)) {
+            Log.d(TAG, "the eanEditText appears to be empty, so we are returning");
             return null;
         }
 
@@ -309,7 +335,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     @Override
     public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
+        Log.d(TAG, "onLoaderReset: loader being reset");
 
+        // Do nothing, this loader design solution does not require it
     }
 
     private void clearFields(){
@@ -320,24 +348,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         rootView.findViewById(R.id.bookCover).setVisibility(View.INVISIBLE);
         rootView.findViewById(R.id.save_button).setVisibility(View.INVISIBLE);
         rootView.findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
-        PackageManager pm = getContext().getPackageManager();
-        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
-        PackageManager pm = getContext().getPackageManager();
-        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP );
     }
 
     // TODO: 2/28/16 - fix the deprecated interface
