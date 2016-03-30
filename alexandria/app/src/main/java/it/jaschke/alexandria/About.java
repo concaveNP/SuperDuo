@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-public class About extends Fragment {
+public class About extends AlexandriaFragment {
 
     public About(){
 

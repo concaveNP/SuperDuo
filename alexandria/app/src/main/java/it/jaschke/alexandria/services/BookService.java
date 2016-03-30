@@ -5,8 +5,10 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -25,7 +27,6 @@ import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
 
-
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
@@ -41,6 +42,7 @@ public class BookService extends IntentService {
 
     public static final String EAN = "it.jaschke.alexandria.services.extra.EAN";
     public static final String EANS = "it.jaschke.alexandria.services.extra.EANS";
+    public static final String RESULT = "it.jaschke.alexandria.services.extra.RESULT";
 
     public BookService() {
         super("Alexandria");
@@ -48,26 +50,58 @@ public class BookService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
         if (intent != null) {
+
             final String action = intent.getAction();
+
+            // Check at the end for this state in order to determine if we should send the intent
+            // issuer a response.
+            boolean sendResult = false;
+
             if (FETCH_BOOK.equals(action)) {
+
                 final String ean = intent.getStringExtra(EAN);
                 Log.d(TAG, "FETCH_BOOK: " + ean);
                 fetchBook(ean);
+
+                // Yes, send back a response
+                sendResult = true;
+
             } if (FETCH_BOOKS.equals(action)) {
+
                 final List<String> eans = intent.getStringArrayListExtra(EANS);
                 for (String ean : eans) {
                     final String temp = ean;
                     Log.d(TAG, "FETCH_BOOKS: " + ean);
                     fetchBook(temp);
                 }
+
+                // Yes, send back a response
+                sendResult = true;
+
             } else if (DELETE_BOOK.equals(action)) {
+
                 final String ean = intent.getStringExtra(EAN);
                 Log.d(TAG, "DELETE_BOOK: " + ean);
                 deleteBook(ean);
                 deleteEanBook(ean);
+
             }
+
+            // Send a response if the intent issuer requested one by putting in a ResultReceiver
+            // object and that the operation warrants a response.
+            if (sendResult) {
+                ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT);
+                if (resultReceiver != null) {
+                    Bundle resultFinished = new Bundle();
+                    resultFinished.putString(RESULT, "The service finished.");
+                    resultReceiver.send(0, resultFinished); // NOTE: result code is not used for this design
+                }
+            }
+
         }
+
     }
 
     /**
@@ -102,9 +136,6 @@ public class BookService extends IntentService {
      * DB and false otherwise
      */
     private void fetchBook(String ean) {
-// TODO: 2/29/16 - remove if needed
-//        // Was the book successfully processed?  Default to no until success.
-//        boolean result = false;
 
         Log.d(TAG, "fetchBook: " + ean);
 

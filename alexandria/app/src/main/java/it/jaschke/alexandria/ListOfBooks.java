@@ -1,34 +1,51 @@
 package it.jaschke.alexandria;
 
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import it.jaschke.alexandria.api.BookListAdapter;
 import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.data.AlexandriaContract;
-import it.jaschke.alexandria.receivers.NetworkReceiver;
+import it.jaschke.alexandria.services.DownloadImage;
 
 
-public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ListOfBooks extends AlexandriaFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private BookListAdapter bookListAdapter;
     private ListView bookList;
     private int position = ListView.INVALID_POSITION;
     private EditText searchText;
+
+    /**
+     * The Adapter which will be used to populate the ListView with Views.
+     */
+    private SimpleCursorAdapter mAdapter;
+
+    private static final ResultsViewBinder VIEW_BINDER = new ResultsViewBinder();
+
+    private static final String[] FROM = {
+            AlexandriaContract.BookEntry.IMAGE_URL,
+            AlexandriaContract.BookEntry.TITLE,
+            AlexandriaContract.BookEntry.SUBTITLE
+    };
+
+    private static final int[] TO = {
+            R.id.fullBookCover,
+            R.id.listBookTitle,
+            R.id.listBookSubTitle
+    };
 
     private final int LOADER_ID = 10;
 
@@ -38,42 +55,43 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Initialize the DB loademFavoritesAdapterrs
+        getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // TODO: 2/23/16 - this is a big design bug, the class is built with the intent of using a
-        // LoadManager, but never uses it, this work is being on the GUI thread I believe and will never update
-        Cursor cursor = getActivity().getContentResolver().query(
-                AlexandriaContract.BookEntry.CONTENT_URI,
-                null, // leaving "columns" null just returns all the columns.
-                null, // cols for "where" clause
-                null, // values for "where" clause
-                null  // sort order
-        );
+        //
+        // BUG: This is an unfinished implementation bug, the class was built with the intent of
+        // using a LoadManager, but never uses it.  This DB query was being done on the GUI thread.
+        // As it was implemented there could never be any updating the data displayed.
+        //
 
-
-        bookListAdapter = new BookListAdapter(getActivity(), cursor, 0);
+        // Obtain view references
         View rootView = inflater.inflate(R.layout.fragment_list_of_books, container, false);
         searchText = (EditText) rootView.findViewById(R.id.searchText);
-        rootView.findViewById(R.id.searchButton).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ListOfBooks.this.restartLoader();
-                    }
-                }
-        );
-
         bookList = (ListView) rootView.findViewById(R.id.listOfBooks);
-        bookList.setAdapter(bookListAdapter);
 
+        // Link data to views
+        mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.book_list_item, null, FROM, TO, 0);
+        mAdapter.setViewBinder(VIEW_BINDER);
+        bookList.setAdapter(mAdapter);
+
+        // Listen for the search button click
+        rootView.findViewById(R.id.searchButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ListOfBooks.this.restartLoader();
+            }
+        });
+
+        // Listen for individual item selection
         bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Cursor cursor = bookListAdapter.getCursor();
+                Cursor cursor = mAdapter.getCursor();
                 if (cursor != null && cursor.moveToPosition(position)) {
                     ((Callback)getActivity())
                             .onItemSelected(cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry._ID)));
@@ -92,7 +110,13 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         final String selection = AlexandriaContract.BookEntry.TITLE +" LIKE ? OR " + AlexandriaContract.BookEntry.SUBTITLE + " LIKE ? ";
-        String searchString =searchText.getText().toString();
+        String searchString = "";
+
+        // Check to see if we have something to work with yet.  It could be the loader is being
+        // put into action before the views are created.
+        if ((searchText != null) && (searchText.getText() != null)) {
+            searchString = searchText.getText().toString();
+        }
 
         if(searchString.length()>0){
             searchString = "%"+searchString+"%";
@@ -118,7 +142,7 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        bookListAdapter.swapCursor(data);
+        mAdapter.swapCursor(data);
         if (position != ListView.INVALID_POSITION) {
             bookList.smoothScrollToPosition(position);
         }
@@ -126,7 +150,7 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        bookListAdapter.swapCursor(null);
+        mAdapter.swapCursor(null);
     }
 
     // TODO: 2/23/16 - fix bug with using older interface call
@@ -136,21 +160,32 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
         activity.setTitle(R.string.books);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    private static class ResultsViewBinder implements SimpleCursorAdapter.ViewBinder {
 
-        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
-        PackageManager pm = getContext().getPackageManager();
-        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+        @Override
+        public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+
+            switch (view.getId()) {
+
+                case R.id.fullBookCover: {
+                    String imgUrl = cursor.getString(columnIndex);
+                    new DownloadImage((ImageView)view).execute(imgUrl);
+                    return true;
+                }
+                case R.id.listBookTitle: {
+                    String bookTitle = cursor.getString(columnIndex);
+                    ((TextView) view).setText(bookTitle);
+                    return true;
+                }
+                case R.id.listBookSubTitle: {
+                    String bookSubTitle = cursor.getString(columnIndex);
+                    ((TextView) view).setText(bookSubTitle);
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        ComponentName receiver = new ComponentName(getContext(), NetworkReceiver.class);
-        PackageManager pm = getContext().getPackageManager();
-        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP );
-    }
 }

@@ -24,6 +24,14 @@ import it.jaschke.alexandria.barcode.ui.camera.GraphicOverlay;
 /**
  * Factory for creating a tracker and associated graphic to be associated with a new barcode.  The
  * multi-processor uses this factory to create barcode trackers as needed -- one for each barcode.
+ *
+ * NOTE: This code was taken from the Google Vision samples code that demonstrated the capabilities
+ * of the barcode scanning capabilities.  I've left the code untouched as much as possible.
+ *
+ * References:
+ * - The Mobile Vision web site: https://developers.google.com/vision/
+ * - The GitHub project that hosted the code used here: https://github.com/googlesamples/android-vision
+ *      - NOTE: barcode-reader was the name of the visionSample within the repo that was used
  */
 class BarcodeTrackerFactory implements MultiProcessor.Factory<Barcode> {
     private GraphicOverlay<BarcodeGraphic> mGraphicOverlay;
