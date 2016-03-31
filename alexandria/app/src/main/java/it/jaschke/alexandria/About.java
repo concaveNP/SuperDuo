@@ -10,21 +10,27 @@ import android.view.ViewGroup;
 
 public class About extends AlexandriaFragment {
 
+    /**
+     * Default constructor
+     */
     public About(){
-
+        // Do nothing
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_about, container, false);
         return rootView;
+
     }
 
     @Override
     public void onAttach(Activity activity) {
+
         super.onAttach(activity);
         activity.setTitle(R.string.about);
+
     }
 
 }

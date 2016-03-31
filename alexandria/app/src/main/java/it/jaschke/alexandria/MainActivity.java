@@ -34,7 +34,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     public static boolean IS_TABLET = false;
     private BroadcastReceiver messageReciever;
 
-    public static final String MESSAGE_EVENT = "MESSAGE_EVENT";
     public static final String MESSAGE_KEY = "MESSAGE_EXTRA";
 
     /**
@@ -57,16 +56,14 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         }
 
         messageReciever = new MessageReciever();
-        IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
+        IntentFilter filter = new IntentFilter(getResources().getString(R.string.MESSAGE_EVENT));
         LocalBroadcastManager.getInstance(this).registerReceiver(messageReciever,filter);
 
-        navigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        navigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         title = getTitle();
 
         // Set up the drawer.
-        navigationDrawerFragment.setUp(R.id.navigation_drawer,
-                    (DrawerLayout) findViewById(R.id.drawer_layout));
+        navigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
     public static Context getAppContext() {
@@ -81,6 +78,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
         switch (position){
             default:
+                // Default to getting a list of the books
             case 0:
                 nextFragment = new ListOfBooks();
                 break;
@@ -90,7 +88,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             case 2:
                 nextFragment = new About();
                 break;
-
         }
 
         fragmentManager.beginTransaction()
@@ -159,7 +156,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         }
         getSupportFragmentManager().beginTransaction()
                 .replace(id, fragment)
-                .addToBackStack("Book Detail")
+                .addToBackStack(getResources().getString(R.string.BOOK_DETAIL_TRANSACTION))
                 .commit();
 
     }
@@ -167,8 +164,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private class MessageReciever extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getStringExtra(MESSAGE_KEY)!=null){
-                Toast.makeText(MainActivity.this, intent.getStringExtra(MESSAGE_KEY), Toast.LENGTH_LONG).show();
+            if(intent.getStringExtra(getResources().getString(R.string.MESSAGE_KEY)) != null) {
+                Toast.makeText(
+                        MainActivity.this,
+                        intent.getStringExtra(getResources().getString(R.string.MESSAGE_KEY)), Toast.LENGTH_LONG).show();
             }
         }
     }

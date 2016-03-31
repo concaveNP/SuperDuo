@@ -47,17 +47,23 @@ public class ListOfBooks extends AlexandriaFragment implements LoaderManager.Loa
             R.id.listBookSubTitle
     };
 
-    private final int LOADER_ID = 10;
+    private final int LOADER_ID = 4;
 
+    /**
+     * Default constructor
+     */
     public ListOfBooks() {
+        // Do nothing
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
-        // Initialize the DB loademFavoritesAdapterrs
+        // Initialize the content starting a DB loader
         getLoaderManager().initLoader(LOADER_ID, null, this);
+
     }
 
     @Override
@@ -118,6 +124,10 @@ public class ListOfBooks extends AlexandriaFragment implements LoaderManager.Loa
             searchString = searchText.getText().toString();
         }
 
+        // There are two different CursorLoaders that could be used.  First check to see if the
+        // user is searching for a specific book by using a filter.  Otherwise, grab everything.
+
+        // Filtered books
         if(searchString.length()>0){
             searchString = "%"+searchString+"%";
             return new CursorLoader(
@@ -130,6 +140,7 @@ public class ListOfBooks extends AlexandriaFragment implements LoaderManager.Loa
             );
         }
 
+        // All books
         return new CursorLoader(
                 getActivity(),
                 AlexandriaContract.BookEntry.CONTENT_URI,
@@ -142,10 +153,13 @@ public class ListOfBooks extends AlexandriaFragment implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
         mAdapter.swapCursor(data);
+
         if (position != ListView.INVALID_POSITION) {
             bookList.smoothScrollToPosition(position);
         }
+
     }
 
     @Override

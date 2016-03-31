@@ -32,6 +32,9 @@ import it.jaschke.alexandria.services.DownloadImage;
 
 public class AddBook extends AlexandriaFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    /**
+     * The logging tag string to be associated with log data for this class
+     */
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
 
     private EditText eanEditText;
@@ -45,6 +48,9 @@ public class AddBook extends AlexandriaFragment implements LoaderManager.LoaderC
 
     private static final int RC_BARCODE_CAPTURE = 9001;
 
+    /**
+     * The number of characters in an EAN number
+     */
     private static final int EAN_LENGTH = 13;
 
     /**
@@ -85,11 +91,14 @@ public class AddBook extends AlexandriaFragment implements LoaderManager.LoaderC
             @Override
             public void afterTextChanged(Editable s) {
 
+                // Get the starting ISBN digits to work with
+                final String ISBN_START = getContext().getResources().getString(R.string.STARTING_ISBN);
+
                 String ean = s.toString();
 
-                //catch isbn10 numbers
-                if (ean.length() == 10 && !ean.startsWith("978")) {
-                    ean="978"+ean;
+                // Catch ISBN_10 numbers
+                if ((ean.length() == 10) && (!ean.startsWith(ISBN_START))) {
+                    ean = ISBN_START + ean;
                 }
 
                 if (ean.length() < EAN_LENGTH) {
