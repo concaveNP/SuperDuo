@@ -58,8 +58,17 @@ import android.support.design.widget.Snackbar;
  * Activity for the multi-tracker app.  This app detects barcodes and displays the value with the
  * rear facing camera. During detection overlay graphics are drawn to indicate the position,
  * size, and ID of each barcode.
+ *
+ * NOTE: This code was taken from the Google Vision samples code that demonstrated the capabilities
+ * of the barcode scanning capabilities.  I've left the code untouched as much as possible.
+ *
+ * References:
+ * - The Mobile Vision web site: https://developers.google.com/vision/
+ * - The GitHub project that hosted the code used here: https://github.com/googlesamples/android-vision
+ *      - NOTE: barcode-reader was the name of the visionSample within the repo that was used
  */
 public final class BarcodeCaptureActivity extends AppCompatActivity {
+
     private static final String TAG = "Barcode-reader";
 
     // intent request code to handle updating play services if needed.

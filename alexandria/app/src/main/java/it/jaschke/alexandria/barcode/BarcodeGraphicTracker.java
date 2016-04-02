@@ -26,6 +26,14 @@ import it.jaschke.alexandria.barcode.ui.camera.GraphicOverlay;
  * any type of item).  This is used to receive newly detected items, add a graphical representation
  * to an overlay, update the graphics as the item changes, and remove the graphics when the item
  * goes away.
+ *
+ * NOTE: This code was taken from the Google Vision samples code that demonstrated the capabilities
+ * of the barcode scanning capabilities.  I've left the code untouched as much as possible.
+ *
+ * References:
+ * - The Mobile Vision web site: https://developers.google.com/vision/
+ * - The GitHub project that hosted the code used here: https://github.com/googlesamples/android-vision
+ *      - NOTE: barcode-reader was the name of the visionSample within the repo that was used
  */
 class BarcodeGraphicTracker extends Tracker<Barcode> {
     private GraphicOverlay<BarcodeGraphic> mOverlay;

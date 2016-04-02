@@ -5,8 +5,10 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -25,7 +27,6 @@ import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
 
-
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
@@ -41,6 +42,7 @@ public class BookService extends IntentService {
 
     public static final String EAN = "it.jaschke.alexandria.services.extra.EAN";
     public static final String EANS = "it.jaschke.alexandria.services.extra.EANS";
+    public static final String RESULT = "it.jaschke.alexandria.services.extra.RESULT";
 
     public BookService() {
         super("Alexandria");
@@ -48,26 +50,58 @@ public class BookService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
         if (intent != null) {
+
             final String action = intent.getAction();
+
+            // Check at the end for this state in order to determine if we should send the intent
+            // issuer a response.
+            boolean sendResult = false;
+
             if (FETCH_BOOK.equals(action)) {
+
                 final String ean = intent.getStringExtra(EAN);
                 Log.d(TAG, "FETCH_BOOK: " + ean);
                 fetchBook(ean);
+
+                // Yes, send back a response
+                sendResult = true;
+
             } if (FETCH_BOOKS.equals(action)) {
+
                 final List<String> eans = intent.getStringArrayListExtra(EANS);
                 for (String ean : eans) {
                     final String temp = ean;
                     Log.d(TAG, "FETCH_BOOKS: " + ean);
                     fetchBook(temp);
                 }
+
+                // Yes, send back a response
+                sendResult = true;
+
             } else if (DELETE_BOOK.equals(action)) {
+
                 final String ean = intent.getStringExtra(EAN);
                 Log.d(TAG, "DELETE_BOOK: " + ean);
                 deleteBook(ean);
                 deleteEanBook(ean);
+
             }
+
+            // Send a response if the intent issuer requested one by putting in a ResultReceiver
+            // object and that the operation warrants a response.
+            if (sendResult) {
+                ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT);
+                if (resultReceiver != null) {
+                    Bundle resultFinished = new Bundle();
+                    resultFinished.putString(RESULT, "The service finished.");
+                    resultReceiver.send(0, resultFinished); // NOTE: result code is not used for this design
+                }
+            }
+
         }
+
     }
 
     /**
@@ -102,9 +136,6 @@ public class BookService extends IntentService {
      * DB and false otherwise
      */
     private void fetchBook(String ean) {
-// TODO: 2/29/16 - remove if needed
-//        // Was the book successfully processed?  Default to no until success.
-//        boolean result = false;
 
         Log.d(TAG, "fetchBook: " + ean);
 
@@ -216,23 +247,24 @@ public class BookService extends IntentService {
     }
 
     private void processJson(String ean, String bookJsonString) throws JSONException {
-        final String ITEMS = "items";
-        final String VOLUME_INFO = "volumeInfo";
-        final String TITLE = "title";
-        final String SUBTITLE = "subtitle";
-        final String AUTHORS = "authors";
-        final String DESC = "description";
-        final String CATEGORIES = "categories";
-        final String IMG_URL_PATH = "imageLinks";
-        final String IMG_URL = "thumbnail";
+
+        final String ITEMS = getApplicationContext().getResources().getString(R.string.ITEMS_JSON);
+        final String VOLUME_INFO = getApplicationContext().getResources().getString(R.string.VOLUME_INFO_JSON);
+        final String TITLE = getApplicationContext().getResources().getString(R.string.TITLE_JSON);
+        final String SUBTITLE = getApplicationContext().getResources().getString(R.string.SUBTITLE_JSON);
+        final String AUTHORS = getApplicationContext().getResources().getString(R.string.AUTHORS_JSON);
+        final String DESC = getApplicationContext().getResources().getString(R.string.DESC_JSON);
+        final String CATEGORIES = getApplicationContext().getResources().getString(R.string.CATEGORIES_JSON);
+        final String IMG_URL_PATH = getApplicationContext().getResources().getString(R.string.IMG_URL_PATH_JSON);
+        final String IMG_URL = getApplicationContext().getResources().getString(R.string.IMG_URL_JSON);
 
         JSONObject bookJson = new JSONObject(bookJsonString);
         JSONArray bookArray;
         if(bookJson.has(ITEMS)){
             bookArray = bookJson.getJSONArray(ITEMS);
         }else{
-            Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
-            messageIntent.putExtra(MainActivity.MESSAGE_KEY,getResources().getString(R.string.not_found));
+            Intent messageIntent = new Intent(getResources().getString(R.string.MESSAGE_EVENT));
+            messageIntent.putExtra(getResources().getString(R.string.MESSAGE_EVENT),getResources().getString(R.string.not_found));
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
             return;
         }
@@ -268,10 +300,6 @@ public class BookService extends IntentService {
         }
     }
 
-    private void processTodoBook(String ean) {
-
-    }
-
     /**
      * Check to see if the given EAN number already exists in the Books table.
      *
@@ -292,8 +320,6 @@ public class BookService extends IntentService {
 
         // Any entries indicates that the book was found
         if (bookEntry.getCount() > 0) {
-            bookEntry.close();
-
             // Book found!
             found = true;
         }
@@ -310,6 +336,7 @@ public class BookService extends IntentService {
      * @return True if the EAN already exists and false otherwise
      */
     private boolean isInEanTable(String ean) {
+
         boolean found = false;
 
         Cursor eanEntry = getContentResolver().query(
@@ -322,8 +349,6 @@ public class BookService extends IntentService {
 
         // Any entries indicates that the book was found
         if (eanEntry.getCount() > 0) {
-            eanEntry.close();
-
             // Book found!
             found = true;
         }
@@ -335,7 +360,9 @@ public class BookService extends IntentService {
     }
 
     private void writeBackBook(String ean, String title, String subtitle, String desc, String imgUrl) {
+
         Log.d(TAG, "Writing book to Book table " + ean);
+
         ContentValues values= new ContentValues();
         values.put(AlexandriaContract.BookEntry._ID, ean);
         values.put(AlexandriaContract.BookEntry.TITLE, title);
@@ -343,10 +370,13 @@ public class BookService extends IntentService {
         values.put(AlexandriaContract.BookEntry.SUBTITLE, subtitle);
         values.put(AlexandriaContract.BookEntry.DESC, desc);
         getContentResolver().insert(AlexandriaContract.BookEntry.CONTENT_URI,values);
+
     }
 
     private void writeBackAuthors(String ean, JSONArray jsonArray) throws JSONException {
+
         Log.d(TAG, "Writing book to Authors table " + ean);
+
         ContentValues values= new ContentValues();
         for (int i = 0; i < jsonArray.length(); i++) {
             values.put(AlexandriaContract.AuthorEntry._ID, ean);
@@ -354,10 +384,13 @@ public class BookService extends IntentService {
             getContentResolver().insert(AlexandriaContract.AuthorEntry.CONTENT_URI, values);
             values= new ContentValues();
         }
+
     }
 
     private void writeBackCategories(String ean, JSONArray jsonArray) throws JSONException {
+
         Log.d(TAG, "Writing book to Categories table " + ean);
+
         ContentValues values= new ContentValues();
         for (int i = 0; i < jsonArray.length(); i++) {
             values.put(AlexandriaContract.CategoryEntry._ID, ean);
@@ -365,6 +398,7 @@ public class BookService extends IntentService {
             getContentResolver().insert(AlexandriaContract.CategoryEntry.CONTENT_URI, values);
             values= new ContentValues();
         }
+
     }
 
     /**
@@ -375,11 +409,12 @@ public class BookService extends IntentService {
      * @param ean - The EAN to store for later lookup
      */
     private void writeBackEan(String ean) {
+
         Log.d(TAG, "Writing book to EAN table " + ean);
+
         ContentValues values= new ContentValues();
         values.put(AlexandriaContract.EanEntry._ID, ean);
         Uri uri = getContentResolver().insert(AlexandriaContract.EanEntry.CONTENT_URI,values);
-
 
         Log.d(TAG, "The resulting URI of writing the EAN to the EAN table " + uri);
 
