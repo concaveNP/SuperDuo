@@ -68,4 +68,7 @@
     <!--A key lookup name to use when finding messages to display to the user.-->
     <string name="MESSAGE_KEY" translatable="false">MESSAGE_KEY</string>
 
+    <!--Preference for the current selected position-->
+    <string name="Preference_StartFragment">pref_startFragment</string>
+
 </resources>

@@ -72,7 +72,6 @@ public class ListOfBooks extends AlexandriaFragment implements LoaderManager.Loa
         //
         // BUG: This is an unfinished implementation bug, the class was built with the intent of
         // using a LoadManager, but never uses it.  This DB query was being done on the GUI thread.
-        // As it was implemented there could never be any updating the data displayed.
         //
 
         // Obtain view references

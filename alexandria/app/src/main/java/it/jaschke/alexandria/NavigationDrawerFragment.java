@@ -80,7 +80,7 @@ public class NavigationDrawerFragment extends AlexandriaFragment {
             mFromSavedInstanceState = true;
         }else{
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            mCurrentSelectedPosition = Integer.parseInt(prefs.getString("pref_startFragment","0"));
+            mCurrentSelectedPosition = Integer.parseInt(prefs.getString(getResources().getString(R.string.Preference_StartFragment),"0"));
             selectItem(mCurrentSelectedPosition);
         }
 
