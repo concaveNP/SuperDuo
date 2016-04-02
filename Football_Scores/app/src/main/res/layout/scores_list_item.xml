@@ -32,7 +32,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="@string/test_text"
                 android:textSize="@dimen/TeamNames" />
         </LinearLayout>
 
@@ -49,7 +48,6 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/test_text"
                 android:textSize="@dimen/Score" />
 
             <TextView
@@ -58,8 +56,7 @@
                 android:layout_height="0dp"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/test_text" />
+                android:gravity="center"/>
 
         </LinearLayout>
 
@@ -81,7 +78,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="@string/test_text"
                 android:textSize="@dimen/TeamNames" />
         </LinearLayout>
     </LinearLayout>
