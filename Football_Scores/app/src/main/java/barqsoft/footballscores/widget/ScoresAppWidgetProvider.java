@@ -1,4 +1,4 @@
-package barqsoft.footballscores;
+package barqsoft.footballscores.widget;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import barqsoft.footballscores.R;
 import barqsoft.footballscores.service.FetchScoresService;
 
 /**
@@ -54,17 +55,11 @@ public class ScoresAppWidgetProvider extends AppWidgetProvider {
             SimpleDateFormat dowFormat = new SimpleDateFormat(context.getResources().getString(R.string.DAY_OF_WEEK_SHORT_FORMAT));
             String finalDay = dowFormat.format(date);
 
-            // Get the date
-            SimpleDateFormat dateFormat = new SimpleDateFormat(context.getResources().getString(R.string.DATE_FORMAT));
-            String finalDate = dateFormat.format(date);
-
             // Construct the RemoteViews object
             rv.setTextViewText(R.id.appwidget_text, widgetText);
 
             // Update the "header" part of the widget with the day of the week and date
             rv.setTextViewText(R.id.dayOfTheWeek_TextView, finalDay);
-            // TODO: 3/18/16 - yeah, layout is bad - fix
-            //rv.setTextViewText(R.id.date_TextView, finalDate);
 
             // Instruct the widget manager to update the widget
             appWidgetManager.updateAppWidget(appWidgetIds[index], rv);
