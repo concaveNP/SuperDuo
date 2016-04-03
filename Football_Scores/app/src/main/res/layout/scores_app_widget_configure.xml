@@ -11,11 +11,18 @@
         android:text="@string/configure"
         android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/appwidget_text"
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="text" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/day_title"
+        android:id="@+id/textView" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/day_Choice_Spinner"
+        android:contentDescription="@string/SpinnerDayContentDescription" />
 
     <Button
         android:id="@+id/add_button"

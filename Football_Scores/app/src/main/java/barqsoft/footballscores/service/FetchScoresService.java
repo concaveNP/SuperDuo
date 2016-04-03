@@ -59,7 +59,6 @@ public class FetchScoresService extends IntentService {
         // Creating the fetch URL by building from the Base URL and the time frame parameter to determine days
         final String baseUrl = getBaseContext().getString(R.string.BASE_URL);
         final String queryTimeFrame = getBaseContext().getString(R.string.QUERY_TIME_FRAME );
-        //final String QUERY_MATCH_DAY = "matchday";
 
         Uri fetch_build = Uri.parse(baseUrl).buildUpon().appendQueryParameter(queryTimeFrame, timeFrame).build();
 
@@ -80,7 +79,10 @@ public class FetchScoresService extends IntentService {
             //
             m_connection.addRequestProperty("X-Auth-Token", getResources().getString(R.string.API_FOOTBALL_DATA_ORG));
 
+            // Perform the connection to the data service
             m_connection.connect();
+
+            Log.d(LOG_TAG, "Performing connection to service for Football data.");
 
             // Read the input stream into a String
             InputStream inputStream = m_connection.getInputStream();
@@ -117,6 +119,7 @@ public class FetchScoresService extends IntentService {
                 }
             }
         }
+
         try {
             if (JSON_data != null) {
                 //This bit is to check if the data contains any matches. If not, we call processJson on the dummy data
@@ -129,6 +132,7 @@ public class FetchScoresService extends IntentService {
                 }
 
                 processJSONdata(JSON_data, getApplicationContext(), true);
+
             } else {
                 //Could not Connect
                 Log.d(LOG_TAG, "Could not connect to server.");
@@ -141,7 +145,7 @@ public class FetchScoresService extends IntentService {
     private void processJSONdata(String JSONdata, Context mContext, boolean isReal) {
 
         // JSON data
-
+ // TODO: 4/3/16 - what about all of this data turned into resources
         // This set of league codes is for the 2015/2016 season. In fall of 2016, they will need to
         // be updated. Feel free to use the codes
         final String BUNDESLIGA1 = "394";
@@ -211,13 +215,13 @@ public class FetchScoresService extends IntentService {
                     mDate = match_data.getString(MATCH_DATE);
                     mTime = mDate.substring(mDate.indexOf("T") + 1, mDate.indexOf("Z"));
                     mDate = mDate.substring(0, mDate.indexOf("T"));
-                    SimpleDateFormat match_date = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss");
+                    SimpleDateFormat match_date = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss"); // TODO: 4/3/16 - string
                     match_date.setTimeZone(TimeZone.getTimeZone("UTC"));
 
                     try {
 
                         Date parsedDate = match_date.parse(mDate + mTime);
-                        SimpleDateFormat newDate = new SimpleDateFormat("yyyy-MM-dd:HH:mm");
+                        SimpleDateFormat newDate = new SimpleDateFormat("yyyy-MM-dd:HH:mm"); // TODO: 4/3/16 - string
                         newDate.setTimeZone(TimeZone.getDefault());
                         mDate = newDate.format(parsedDate);
                         mTime = mDate.substring(mDate.indexOf(":") + 1);
@@ -227,7 +231,7 @@ public class FetchScoresService extends IntentService {
 
                             //This if statement changes the dummy data's date to match our current date range.
                             Date fragmentDate = new Date(System.currentTimeMillis() + ((index - 2) * 86400000));
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); // TODO: 4/3/16 - string
                             mDate = simpleDateFormat.format(fragmentDate);
 
                         }
@@ -267,8 +271,18 @@ public class FetchScoresService extends IntentService {
                 }
             }
 
+            //  The number of values that were inserted.
+            int inserted_data = 0;
+
+            // Put the values into and array for DB insertion
             ContentValues[] insert_data = new ContentValues[values.size()];
             values.toArray(insert_data);
+
+            // Put data into the DB
+            inserted_data = mContext.getContentResolver().bulkInsert(DatabaseContract.BASE_CONTENT_URI, insert_data);
+
+            // Log entries
+            Log.d(LOG_TAG,"Successfully Inserted : " + String.valueOf(inserted_data));
 
         } catch (JSONException e) {
 

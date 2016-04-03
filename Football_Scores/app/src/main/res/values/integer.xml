@@ -11,4 +11,12 @@
     <integer name="PRIMERA_DIVISION_LEAGUE_NUMBER">358</integer>
     <integer name="BUNDESLIGA_LEAGUE_NUMBER">351</integer>
 
+    <!--This array is to be kept in sync with the string-array "widget_day_choice_titles" as it
+        represents the day offset from the current day -->
+    <integer-array name="widget_day_choice_values">
+        <item>-1</item>
+        <item>0</item>
+        <item>1</item>
+    </integer-array>
+
 </resources>
