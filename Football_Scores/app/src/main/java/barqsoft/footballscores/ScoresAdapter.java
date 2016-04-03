@@ -15,7 +15,6 @@ import android.widget.TextView;
  */
 public class ScoresAdapter extends CursorAdapter {
 
-    // TODO: 3/23/16 - I don't like numbered column references, if time, convert to named (as the StackRemoteViewsFactory does)
     public static final int COL_HOME = 3;
     public static final int COL_AWAY = 4;
     public static final int COL_HOME_GOALS = 6;
