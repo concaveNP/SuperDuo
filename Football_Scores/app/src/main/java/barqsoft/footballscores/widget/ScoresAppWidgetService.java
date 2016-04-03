@@ -153,9 +153,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public int getViewTypeCount() {
-        // TODO: 3/23/16 - dave, investigate this 2 thing
-//        // Technically, we have two types of views (the dark and light background views)
-//        return 2;
         return 1;
     }
 

@@ -48,6 +48,10 @@
     <!--When issuing the share intent, this is MIME data type-->
     <string name="SHARE_MIME_TYPE" translatable="false">text/plain</string>
 
+    <!--Time frames the Football service understands-->
+    <string name="N2_TIMEFRAME" translatable="false">n2</string>
+    <string name="P2_TIMEFRAME" translatable="false">p2</string>
+
     <!--The base url used in querying for data from -->
     <string name="BASE_URL" translatable="false">http://api.football-data.org/alpha/fixtures</string>
 
@@ -72,6 +76,11 @@
     <!--The day of the week "short" string format (i.e. Fri)-->
     <string name="DAY_OF_WEEK_SHORT_FORMAT" translatable="false">EE</string>
 
+    <!--Time formats-->
+    <string name="MATCH_DATE" translatable="false">yyyy-MM-ddHH:mm:ss</string>
+    <string name="NEW_DATE" translatable="false">yyyy-MM-dd:HH:mm</string>
+    <string name="NOT_REAL_DATE" translatable="false">yyyy-MM-dd</string>
+    <string name="TIME_ZONE" translatable="false">UTC</string>
 
     <!--These are the League Names: (I do NOT think we would want these translated)-->
     <string name="SERIA_A_LEAGUE" translatable="false">Seria A</string>
@@ -103,6 +112,34 @@
     <string name="SUNDERLAND_AFC_TEAM" translatable="false">Sunderland AFC</string>
     <string name="STOKE_CITY_FC_TEAM_TEAM" translatable="false">Stoke City FC</string>
 
+    <!--JSON processing strings-->
+    <string name="SEASON_LINK" translatable="false">http://api.football-data.org/alpha/soccerseasons/</string>
+    <string name="MATCH_LINK" translatable="false">http://api.football-data.org/alpha/fixtures/</string>
+    <string name="FIXTURES" translatable="false">fixtures</string>
+    <string name="LINKS" translatable="false">_links</string>
+    <string name="SOCCER_SEASON" translatable="false">soccerseason</string>
+    <string name="SELF" translatable="false">self</string>
+    <string name="MATCH_DATE_JSON" translatable="false">date</string>
+    <string name="HOME_TEAM" translatable="false">homeTeamName</string>
+    <string name="AWAY_TEAM" translatable="false">awayTeamName</string>
+    <string name="RESULT" translatable="false">result</string>
+    <string name="HOME_GOALS" translatable="false">goalsHomeTeam</string>
+    <string name="AWAY_GOALS" translatable="false">goalsAwayTeam</string>
+    <string name="MATCH_DAY" translatable="false">matchday</string>
+
+    <!--This set of league codes is for the 2015/2016 season. In fall of 2016, they will need to -->
+    <!--be updated. Feel free to use the codes-->
+    <string name="BUNDESLIGA1" translatable="false">394</string>
+    <string name="BUNDESLIGA2" translatable="false">395</string>
+    <string name="LIGUE1" translatable="false">396</string>
+    <string name="LIGUE2" translatable="false">397</string>
+    <string name="PREMIER_LEAGUE_JSON" translatable="false">398</string>
+    <string name="PRIMERA_DIVISION" translatable="false">399</string>
+    <string name="SEGUNDA_DIVISION" translatable="false">400</string>
+    <string name="SERIE_A" translatable="false">401</string>
+    <string name="PRIMERA_LIGA" translatable="false">402</string>
+    <string name="Bundesliga3" translatable="false">403</string>
+    <string name="EREDIVISIE" translatable="false">404</string>
 
     <!-- -->
     <!--Properties for use with the widget-->

@@ -21,19 +21,15 @@ public class MainActivity extends ActionBarActivity {
     private static Context sContext;
 
     /**
-     *
+     * The currently selected match of focus from the user.
      */
     public static int mSelectedMatchId;
 
     /**
-     *
+     * The user changed focus on the day of the week, where 2 is essentially today.
      */
     public static int mCurrentFragment = 2;
 
-    // TODO: 3/23/16 - This could be a bug, dunno if saving this instance value of a reference is a good idea
-    /**
-     *
-     */
     private PagerFragment pagerFragment;
 
     @Override
