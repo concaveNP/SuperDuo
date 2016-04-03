@@ -117,6 +117,7 @@ public class FetchScoresService extends IntentService {
                 }
             }
         }
+
         try {
             if (JSON_data != null) {
                 //This bit is to check if the data contains any matches. If not, we call processJson on the dummy data
@@ -129,6 +130,7 @@ public class FetchScoresService extends IntentService {
                 }
 
                 processJSONdata(JSON_data, getApplicationContext(), true);
+
             } else {
                 //Could not Connect
                 Log.d(LOG_TAG, "Could not connect to server.");
@@ -267,8 +269,18 @@ public class FetchScoresService extends IntentService {
                 }
             }
 
+            //  The number of values that were inserted.
+            int inserted_data = 0;
+
+            // Put the values into and array for DB insertion
             ContentValues[] insert_data = new ContentValues[values.size()];
             values.toArray(insert_data);
+
+            // Put data into the DB
+            inserted_data = mContext.getContentResolver().bulkInsert(DatabaseContract.BASE_CONTENT_URI, insert_data);
+
+            // Log entries
+            Log.d(LOG_TAG,"Successfully Inserted : " + String.valueOf(inserted_data));
 
         } catch (JSONException e) {
 
