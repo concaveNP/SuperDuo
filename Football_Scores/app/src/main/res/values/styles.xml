@@ -5,4 +5,10 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="WidgetListItemTheme">
+        <!-- Customize your theme here. -->
+        <item name="android:textColor">@android:color/primary_text_light</item>
+        <item name="android:background">@color/green13</item>
+    </style>
+
 </resources>

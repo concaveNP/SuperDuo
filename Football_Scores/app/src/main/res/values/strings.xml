@@ -22,16 +22,25 @@
     <string name="appwidget_text" translatable="true">EXAMPLE</string>
     <string name="configure" translatable="true">Configure</string>
     <string name="add_widget" translatable="true">Add widget</string>
+    <string name="day_of_the_week" translatable="true">Day of the Week</string>
+    <string name="day_title" translatable="true">Day Displayed</string>
+    <string name="HomeNameExample">Home Name Example</string>
+    <string name="AwayNameExample">Away Name Example</string>
+    <string name="MatchTimeExample">Match Time</string>
+    <string name="ScoreExample">Score</string>
 
     <!--This text will be displayed within the widget if there is no data to be displayed.  -->
     <!--Hopefully, the term "match" is appropriate in the UK context.  :)-->
-    <string name="empty_view_text" translatable="true">No matches today</string>
+    <string name="empty_view_text" translatable="true">No scheduled matches</string>
 
     <!--The context description of the "Share" button for those who are impaired-->
     <string name="ShareButtonContentDescription" translatable="true">Share the match with someone</string>
 
     <!--The context description of the "Add Widget" button for those who are impaired-->
     <string name="AddWidgetContentDescription" translatable="true">Adds the configured widget</string>
+
+    <!--The context description of the spinner day selection in the widget for those who are impaired-->
+    <string name="SpinnerDayContentDescription" translatable="true">Choose the day for the widget to display</string>
 
     <!--The Twitter hashtag string to use for sharing with friends via share functionality.-->
     <string name="HASHTAG_FOOTBALL_SCORES" translatable="false">#Football_Scores</string>
@@ -94,6 +103,23 @@
     <string name="SUNDERLAND_AFC_TEAM" translatable="false">Sunderland AFC</string>
     <string name="STOKE_CITY_FC_TEAM_TEAM" translatable="false">Stoke City FC</string>
 
+
+    <!-- -->
+    <!--Properties for use with the widget-->
+    <!-- -->
+    <string name="yesterday_title" translatable="true">Yesterday</string>
+    <string name="today_title" translatable="true">Today</string>
+    <string name="tomorrow_title" translatable="true">Tomorrow</string>
+    <string name="default_day_preference">@string/today_title</string>
+    <!--This array is to be kept in sync with the integer-array "widget_day_choice_values" as it
+        represents the day offset from the current day -->
+    <string-array name="widget_day_choice_titles">
+        <item>@string/yesterday_title</item>
+        <item>@string/today_title</item>
+        <item>@string/tomorrow_title</item>
+    </string-array>
+    <!-- -->
+    <!-- -->
 
 </resources>
 

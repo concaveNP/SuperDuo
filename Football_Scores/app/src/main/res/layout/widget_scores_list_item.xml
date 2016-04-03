@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/green13">
+    android:background="@color/green13"
+    android:theme="@style/WidgetListItemTheme">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +27,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:textSize="@dimen/TeamNames" />
+                android:textSize="@dimen/TeamNames"
+                android:text="@string/HomeNameExample" />
 
         </LinearLayout>
 
@@ -43,7 +45,7 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textSize="@dimen/Score" />
+                android:text="@string/ScoreExample" />
 
             <TextView
                 android:id="@+id/data_textview"
@@ -51,7 +53,8 @@
                 android:layout_height="0dp"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:text="@string/MatchTimeExample" />
 
         </LinearLayout>
 
@@ -67,7 +70,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:textSize="@dimen/TeamNames" />
+                android:textSize="@dimen/TeamNames"
+                android:text="@string/AwayNameExample" />
 
         </LinearLayout>
     </LinearLayout>

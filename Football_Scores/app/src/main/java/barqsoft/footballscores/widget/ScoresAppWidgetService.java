@@ -113,7 +113,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         String awayName = "";
         String dateString = "";
         String score = "";
-        Double matchId = 0.0;
 
         // Extract the data from the DB cursor
         if (mCursor.moveToPosition(position)) {
@@ -127,17 +126,15 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             // Use the names of the DB columns to get the index used for this cursor
             final int homeNameIndex = mCursor.getColumnIndex(DatabaseContract.scores_table.HOME_COL);
             final int awayNameIndex = mCursor.getColumnIndex(DatabaseContract.scores_table.AWAY_COL);
-            final int dateStringIndex = mCursor.getColumnIndex(DatabaseContract.scores_table.DATE_COL);
+            final int dateStringIndex = mCursor.getColumnIndex(DatabaseContract.scores_table.TIME_COL);
             final int homeGoalsIndex = mCursor.getColumnIndex(DatabaseContract.scores_table.HOME_GOALS_COL);
             final int awayGoalsIndex = mCursor.getColumnIndex(DatabaseContract.scores_table.AWAY_GOALS_COL);
-            final int matchIdIndex = mCursor.getColumnIndex(DatabaseContract.scores_table.MATCH_ID);
 
             // Use the indexes to extract the needed data
             homeName = mCursor.getString(homeNameIndex);
             awayName = mCursor.getString(awayNameIndex);
             dateString = mCursor.getString(dateStringIndex);
             score = Utilies.getScores(mCursor.getInt(homeGoalsIndex), mCursor.getInt(awayGoalsIndex));
-            matchId = mCursor.getDouble(matchIdIndex);
 
         }
 
@@ -146,6 +143,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         remoteViews.setTextViewText(R.id.home_name, homeName);
         remoteViews.setTextViewText(R.id.away_name, awayName);
         remoteViews.setTextViewText(R.id.score_textview, score);
+        remoteViews.setTextViewText(R.id.data_textview, dateString);
 
         return remoteViews;
 
@@ -178,10 +176,13 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             mCursor.close();
         }
 
-        Date todayDate = new Date(System.currentTimeMillis());
+        // Extract configuration information for this widget
+        int dayOffset = ScoresAppWidgetConfigureActivity.getDayOffset(mContext, mAppWidgetId);
+
+        Date date = new Date(System.currentTimeMillis() + ((dayOffset) * mContext.getResources().getInteger(R.integer.NUMBER_OF_MILISECONDS_IN_A_DAY)));
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(mContext.getResources().getString(R.string.DATE_FORMAT));
         String[] selectionArgs = new String[1];
-        selectionArgs[0] = simpleDateFormat.format(todayDate);
+        selectionArgs[0] = simpleDateFormat.format(date);
 
         // Query the DB for the games for today
         mCursor = mContext.getContentResolver().query(DatabaseContract.scores_table.buildScoreWithDate(), null, null, selectionArgs, null);

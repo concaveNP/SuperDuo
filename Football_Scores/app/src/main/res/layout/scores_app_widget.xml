@@ -17,8 +17,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Today:"
-            android:id="@+id/today_TextView"
+            android:text="@string/day_title"
+            android:id="@+id/day_Title_TextView"
             android:paddingEnd="10dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
@@ -28,31 +28,34 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Day of the Week"
+            android:text="@string/day_of_the_week"
             android:id="@+id/dayOfTheWeek_TextView"
             android:layout_gravity="center_horizontal"
             android:layout_alignParentTop="true"
-            android:layout_toEndOf="@+id/today_TextView"
+            android:layout_toEndOf="@+id/day_Title_TextView"
             android:paddingEnd="10dp" />
 
     </RelativeLayout>
 
     <ListView
+        android:id="@+id/widget_Score_ListView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/widget_Score_ListView"
         android:layout_below="@+id/widget_Header_RelativeLayout"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:drawSelectorOnTop="false"
+        android:dividerHeight="@dimen/WidgetListViewDividerHeight" />
 
     <TextView
         android:id="@+id/empty_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_below="@+id/widget_Header_RelativeLayout"
         android:gravity="center"
         android:visibility="gone"
-        android:textColor="#ffffff"
         android:text="@string/empty_view_text"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:theme="@style/WidgetListItemTheme" />
 
 </RelativeLayout>
