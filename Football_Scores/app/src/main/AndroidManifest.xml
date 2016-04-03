@@ -40,7 +40,7 @@
 
         <service android:name=".service.FetchScoresService" />
 
-        <receiver android:name=".ScoresAppWidgetProvider" >
+        <receiver android:name=".widget.ScoresAppWidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -50,13 +50,13 @@
                 android:resource="@xml/scores_app_widget_info" />
         </receiver>
 
-        <activity android:name=".ScoresAppWidgetConfigureActivity" >
+        <activity android:name=".widget.ScoresAppWidgetConfigureActivity" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
 
-        <service android:name=".ScoresAppWidgetService"
+        <service android:name=".widget.ScoresAppWidgetService"
             android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 

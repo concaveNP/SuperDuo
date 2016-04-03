@@ -1,4 +1,4 @@
-package barqsoft.footballscores;
+package barqsoft.footballscores.widget;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
+import barqsoft.footballscores.R;
+
 /**
  * The configuration screen for the {@link ScoresAppWidgetProvider ScoresAppWidgetProvider} AppWidget.
  */
@@ -16,7 +18,7 @@ public class ScoresAppWidgetConfigureActivity extends Activity {
 
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     EditText mAppWidgetText;
-    private static final String PREFS_NAME = "barqsoft.footballscores.ScoresAppWidgetProvider";
+    private static final String PREFS_NAME = "barqsoft.footballscores.widget.ScoresAppWidgetProvider";
     private static final String PREF_PREFIX_KEY = "appwidget_";
 
     public ScoresAppWidgetConfigureActivity() {
