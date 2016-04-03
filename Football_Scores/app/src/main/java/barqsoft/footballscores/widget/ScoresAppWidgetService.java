@@ -17,8 +17,6 @@ import barqsoft.footballscores.database.DatabaseContract;
 /**
  * The file contains two classes as explained
  *
- *
- *
  * References:
  * - Android Developers: App Widgets,
  *      http://developer.android.com/guide/topics/appwidgets/index.html,
